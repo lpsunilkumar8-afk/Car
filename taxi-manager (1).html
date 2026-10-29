@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<title>Taxi Manager</title>
+<style>
+:root{
+  --bg:#f4f3ef;--card:#ffffff;--ink:#16181d;--muted:#6b6f78;--line:#e4e2db;
+  --accent:#f5b400;--accent-ink:#1a1400;--accent-soft:#fff4cf;
+  --good:#1f8a4c;--good-soft:#e3f5ea;--bad:#c8372d;--bad-soft:#fbe6e4;--warn:#b86e00;--warn-soft:#fff0d9;
+  --side:#14161a;--side-ink:#d9dbe0;--shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1114;--card:#181b20;--ink:#eceef2;--muted:#9097a3;--line:#2a2e35;
+  --accent-soft:#3a2f0a;--good-soft:#123222;--bad-soft:#3a1714;--warn-soft:#3a2a0e;--good:#4cc27e;--bad:#ff7a6e;--warn:#f0a73a;
+  --side:#0b0c0f;--shadow:none;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:flex;min-height:100vh}
+aside{width:232px;background:var(--side);color:var(--side-ink);padding:20px 12px;position:sticky;top:0;height:100vh;flex-shrink:0;display:flex;flex-direction:column;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px;font-weight:700;color:#fff;font-size:16px}
+.brand .logo{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.brand small{display:block;font-weight:400;color:#8b909a;font-size:12px}
+.nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;color:var(--side-ink);text-decoration:none;cursor:pointer;font-size:14.5px}
+.nav a:hover{background:#ffffff10}
+.nav a.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.nav svg{width:19px;height:19px;flex-shrink:0}
+main{flex:1;min-width:0;padding:22px 28px 100px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{font-size:23px;margin:0;flex:1;letter-spacing:-.01em}
+.monthpick{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.monthpick button{border:0;background:none;padding:8px 11px;cursor:pointer;color:var(--muted)}
+.monthpick span{min-width:104px;text-align:center;font-weight:600;font-size:14px}
+.btn{border:1px solid var(--line);background:var(--card);padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.grid{display:grid;gap:14px}
+.grid>*{min-width:0}
+main,.card{min-width:0}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 12px;font-size:15px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .v{font-size:24px;font-weight:700;margin-top:4px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.two{grid-template-columns:1.4fr 1fr}
+.row{display:flex;align-items:center;gap:10px}
+.list .it{display:flex;align-items:center;gap:12px;padding:11px 2px;border-top:1px solid var(--line);cursor:pointer}
+.list .it:first-child{border-top:0}
+.it .main{flex:1;min-width:0}
+.it .t{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .d{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it .amt{font-weight:700;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.ico{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;background:var(--accent-soft);font-size:16px}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;background:var(--line);color:var(--muted);white-space:nowrap}
+.badge.good{background:var(--good-soft);color:var(--good)}.badge.bad{background:var(--bad-soft);color:var(--bad)}.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters select,.filters input{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.filters input{flex:1;min-width:140px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:12.5px;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right}
+tr.tot td{font-weight:700;border-bottom:0}
+.tablewrap{overflow-x:auto}
+.empty{color:var(--muted);text-align:center;padding:28px 10px}
+.alert{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;margin-bottom:8px;font-size:14px}
+.alert.bad{background:var(--bad-soft)}.alert.warn{background:var(--warn-soft)}
+.alert b{font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:6px}
+.bars .g{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.bars .pair{flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center}
+.bars .b{width:42%;max-width:22px;border-radius:5px 5px 0 0;min-height:2px}
+.bars .lb{font-size:11.5px;color:var(--muted)}
+.legend{display:flex;gap:14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.carcards{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.carcard .plate{font-weight:800;letter-spacing:.04em;background:var(--accent);color:var(--accent-ink);display:inline-block;padding:3px 9px;border-radius:6px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stats div{background:var(--bg);border-radius:9px;padding:8px}
+.stats .l{font-size:11.5px;color:var(--muted)}.stats .v{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.sal .brk{display:grid;grid-template-columns:1fr auto;gap:3px 12px;font-size:13.5px;margin:10px 0}
+.sal .brk span:nth-child(even){text-align:right;font-variant-numeric:tabular-nums}
+.sal .net{display:flex;justify-content:space-between;font-weight:700;font-size:17px;border-top:1px dashed var(--line);padding-top:8px}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(10,10,12,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.ov.show{display:flex}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:520px;max-height:92vh;display:flex;flex-direction:column}
+.modal header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.modal header h2{margin:0;font-size:17px}
+.modal .body{padding:16px 18px;overflow:auto}
+.modal footer{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.modal footer .sp{flex:1}
+.x{border:0;background:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.full{grid-column:1/-1}
+.f label{font-size:12.5px;color:var(--muted);font-weight:600}
+.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 11px;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.hint{font-size:12.5px;color:var(--muted)}
+.calcbox{background:var(--bg);border-radius:10px;padding:12px;margin-top:12px;font-size:14px}
+/* mobile */
+.tabbar,.fab,.mtop{display:none}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:60}
+#toast.show{opacity:1}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--muted);text-align:center}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media (max-width:760px){
+  aside{display:none}
+  main{padding:12px 16px 110px}
+  .top h1{font-size:20px;flex-basis:100%}
+  .top .monthpick{flex:1}
+  .top .monthpick span{flex:1}
+  .mtop{display:flex;align-items:center;gap:10px;margin:0 -16px 12px;padding:10px 16px;background:var(--side);color:#fff;position:sticky;top:0;z-index:20}
+  .mtop .logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+  .mtop b{flex:1;font-size:15px}
+  .mtop .btn{background:#ffffff18;border-color:#ffffff30;color:#fff}
+  .tabbar{display:flex;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);z-index:30;padding-bottom:env(safe-area-inset-bottom)}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 7px;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:none}
+  .tabbar a.on{color:var(--ink);font-weight:700}
+  .tabbar a.on svg{color:var(--accent)}
+  .tabbar svg{width:22px;height:22px}
+  .fab{display:grid;place-items:center;position:fixed;right:16px;bottom:78px;width:54px;height:54px;border-radius:16px;background:var(--accent);color:var(--accent-ink);border:0;font-size:28px;box-shadow:0 6px 18px rgba(0,0,0,.25);z-index:31;cursor:pointer}
+  .kpi .v{font-size:20px}
+  .card{padding:14px}
+  .fg{grid-template-columns:1fr}
+  .ov{align-items:flex-end;padding:0}
+  .modal{border-radius:18px 18px 0 0;max-height:94vh}
+  .hide-m{display:none}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{position:absolute;left:0;top:0;width:100%}
+}
+#printArea{display:none}
+@media print{#printArea{display:block}}
+.slip{font:14px/1.5 system-ui,sans-serif;color:#000;padding:30px;max-width:700px}
+.slip h1{margin:0;font-size:22px}.slip table td,.slip table th{border:1px solid #999;padding:6px 10px;color:#000}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5v5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/><path d="M9 4h6"/></svg></div><div><span id="brandName">Taxi Manager</span><small>Fleet &amp; finance</small></div></div>
+    <nav class="nav" id="sideNav"></nav>
+  </aside>
+  <main>
+    <div class="mtop"><div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14v-5l-2-5H7l-2 5v5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg></div><b id="mBrand">Taxi Manager</b><button class="btn sm" onclick="reload(true)" title="Refresh">↻</button></div>
+    <div id="view"><div class="loading">Connecting to database…</div></div>
+  </main>
+</div>
+<nav class="tabbar" id="tabBar"></nav>
+<button class="fab" id="fab" onclick="quickAdd()" aria-label="Add">+</button>
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div id="toast"></div>
+<div id="printArea"></div>
+
+<script>
+/* ====== CONFIG ====== */
+const SB_URL = "https://lknsirszamdzbhuvmsdl.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxrbnNpcnN6YW1kemJodXZtc2RsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNTM1ODYsImV4cCI6MjEwODgyOTU4Nn0.jqHPN27SL9QTP2_1gxQQTLL1y9WD17iuoVN6MS0kRHs";
+
+const EXP_CATS = ["Fuel","Service","Repair","Tyres","Insurance","Permit / Tax","PUC / Fitness","Toll","Parking","Car Wash","Car EMI","Traffic Fine","Office Rent","Phone / Internet","Staff Food","Misc"];
+const DOC_TYPES_CAR = ["Insurance","Permit","PUC","Fitness","Road Tax","RC","Other"];
+const DOC_TYPES_DRV = ["Driving License","Badge","Police Verification","Other"];
+const PAY_MODES = ["Cash","UPI","Online","Credit Card","Debit Card","Bank Transfer"];
+const PAY_TYPES = {fixed:"Fixed monthly",commission:"Commission %",per_trip:"Per trip",per_day:"Per day"};
+const CAT_ICON = {Fuel:"⛽",Service:"🔧",Repair:"🛠️",Tyres:"🛞",Insurance:"🛡️","Permit / Tax":"📄","PUC / Fitness":"📋",Toll:"🛣️",Parking:"🅿️","Car Wash":"🧽","Car EMI":"🏦","Traffic Fine":"🚨","Office Rent":"🏢","Phone / Internet":"📱","Staff Food":"🍱",Misc:"📦"};
+
+/* ====== DATA LAYER (Supabase REST) ====== */
+const H = {apikey:SB_KEY, Authorization:"Bearer "+SB_KEY, "Content-Type":"application/json"};
+async function api(path, opts={}){
+  const r = await fetch(SB_URL+"/rest/v1/"+path, {...opts, headers:{...H, ...(opts.headers||{})}});
+  if(!r.ok){ let m = r.status+""; try{ const j = await r.json(); m = j.message||j.hint||m; }catch(e){} throw new Error(m); }
+  if(r.status===204) return null;
+  const t = await r.text(); return t ? JSON.parse(t) : null;
+}
+async function fetchAll(table, order){
+  const out=[]; const size=1000;
+  for(let from=0;;from+=size){
+    const rows = await api(`${table}?select=*${order?"&order="+order:""}`, {headers:{Range:`${from}-${from+size-1}`, "Range-Unit":"items"}});
+    out.push(...rows); if(rows.length<size) break;
+  }
+  return out;
+}
+const db = {
+  insert:(t,row)=>api(t,{method:"POST",body:JSON.stringify(row),headers:{Prefer:"return=representation"}}).then(r=>r[0]),
+  update:(t,id,row)=>api(`${t}?id=eq.${id}`,{method:"PATCH",body:JSON.stringify(row),headers:{Prefer:"return=representation"}}).then(r=>r[0]),
+  remove:(t,id)=>api(`${t}?id=eq.${id}`,{method:"DELETE"}),
+  upsert:(t,row,conflict)=>api(`${t}?on_conflict=${conflict}`,{method:"POST",body:JSON.stringify(row),headers:{Prefer:"resolution=merge-duplicates,return=representation"}}).then(r=>r[0]),
+};
+
+/* ====== STATE ====== */
+const S = {settings:{}, cars:[], drivers:[], trips:[], expenses:[], advances:[], salaries:[], documents:[], car_loans:[], credit_cards:[], card_payments:[]};
+const todayStr = ()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+let MONTH = todayStr().slice(0,7);
+let VIEW = "dashboard";
+const F = {}; // per-view filters
+
+async function reload(manual){
+  try{
+    const [settings,cars,drivers,trips,expenses,advances,salaries,documents,car_loans,credit_cards,card_payments] = await Promise.all([
+      api("settings?select=*&id=eq.1"), fetchAll("cars","reg_no"), fetchAll("drivers","name"),
+      fetchAll("trips","trip_date.desc,created_at.desc"), fetchAll("expenses","exp_date.desc,created_at.desc"),
+      fetchAll("advances","adv_date.desc"), fetchAll("salaries","month.desc"), fetchAll("documents","expiry_date"),
+      fetchAll("car_loans","created_at"), fetchAll("credit_cards","name"), fetchAll("card_payments","pay_date.desc")
+    ]);
+    Object.assign(S,{settings:settings[0]||{},cars,drivers,trips,expenses,advances,salaries,documents,car_loans,credit_cards,card_payments});
+    document.getElementById("brandName").textContent = document.getElementById("mBrand").textContent = S.settings.company_name||"Taxi Manager";
+    document.title = (S.settings.company_name||"Taxi")+" · Manager";
+    render();
+    if(manual) toast("Data refreshed");
+  }catch(e){
+    document.getElementById("view").innerHTML = `<div class="loading"><div><b>Couldn't reach the database.</b><br><span class="hint">${esc(e.message)}</span><br><br><button class="btn pri" onclick="reload()">Try again</button></div></div>`;
+  }
+}
+
+/* ====== HELPERS ====== */
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num = v => { const n = parseFloat(v); return isFinite(n)?n:0; };
+const r2 = n => Math.round(n*100)/100;
+const inr = n => { const v=Math.round(num(n)); return (v<0?"−":"")+"₹"+Math.abs(v).toLocaleString("en-IN"); };
+const sum = (a,f) => a.reduce((s,x)=>s+num(f?f(x):x),0);
+const fdate = d => d ? new Date(d+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"2-digit"}) : "—";
+const mlabel = m => new Date(m+"-01T00:00:00").toLocaleDateString("en-IN",{month:"long",year:"numeric"});
+const mshort = m => new Date(m+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short"});
+const shiftMonth = (m,k) => { const d=new Date(m+"-01T00:00:00"); d.setMonth(d.getMonth()+k); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); };
+const daysUntil = d => Math.round((new Date(d+"T00:00:00") - new Date(todayStr()+"T00:00:00"))/864e5);
+const car = id => S.cars.find(c=>c.id===id);
+const drv = id => S.drivers.find(d=>d.id===id);
+const carName = id => car(id)?.reg_no || "—";
+const drvName = id => drv(id)?.name || "—";
+const inM = (d,m=MONTH) => (d||"").startsWith(m);
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+const activeCars = () => S.cars.filter(c=>c.status!=="Inactive");
+const activeDrivers = () => S.drivers.filter(d=>d.status!=="Inactive");
+
+/* ====== CALCULATIONS ====== */
+function salaryCalc(d, m=MONTH){
+  const trips = S.trips.filter(t=>t.driver_id===d.id && inM(t.trip_date,m));
+  const earnings = sum(trips,t=>t.fare);
+  const autoDays = new Set(trips.map(t=>t.trip_date)).size;
+  const saved = S.salaries.find(s=>s.driver_id===d.id && s.month===m);
+  const days = saved ? num(saved.days_worked) : autoDays;
+  const fixed = d.pay_type==="fixed" ? num(d.fixed_salary) : 0;
+  const commission = d.pay_type==="commission" ? r2(earnings*num(d.commission_pct)/100) : 0;
+  const tripPay = d.pay_type==="per_trip" ? trips.length*num(d.per_trip_rate) : 0;
+  const dayPay = d.pay_type==="per_day" ? days*num(d.per_day_rate) : 0;
+  const bonus = saved ? num(saved.bonus) : 0;
+  const gross = r2(fixed+commission+tripPay+dayPay+bonus);
+  const given = sum(S.advances.filter(a=>a.driver_id===d.id),a=>a.amount);
+  const deductedOther = sum(S.salaries.filter(s=>s.driver_id===d.id && s.month!==m),s=>s.advance_deduction);
+  const outstanding = Math.max(0, r2(given-deductedOther));
+  const advDed = saved ? num(saved.advance_deduction) : Math.min(outstanding, gross);
+  const otherDed = saved ? num(saved.other_deduction) : 0;
+  const net = r2(gross-advDed-otherDed);
+  const paid = saved ? num(saved.paid_amount) : 0;
+  const status = !saved ? "draft" : paid<=0 ? "pending" : paid+0.5<net ? "partial" : "paid";
+  return {d,m,trips,earnings,tripsCount:trips.length,autoDays,days,fixed,commission,tripPay,dayPay,bonus,gross,outstanding,advDed,otherDed,net,paid,saved,status};
+}
+function advanceBalance(id){
+  const given = sum(S.advances.filter(a=>a.driver_id===id),a=>a.amount);
+  const ded = sum(S.salaries.filter(s=>s.driver_id===id),s=>s.advance_deduction);
+  return r2(given-ded);
+}
+function monthSummary(m=MONTH){
+  const trips = S.trips.filter(t=>inM(t.trip_date,m));
+  const exps = S.expenses.filter(e=>inM(e.exp_date,m));
+  const income = sum(trips,t=>t.fare);
+  const expense = sum(exps,e=>e.amount);
+  const sal = S.drivers.filter(d=>d.status!=="Inactive" || S.salaries.some(s=>s.driver_id===d.id&&s.month===m)).map(d=>salaryCalc(d,m));
+  const salary = sum(sal,s=>s.gross);
+  const km = sum(trips,t=>t.km);
+  return {trips,exps,income,expense,salary,sal,km,profit:r2(income-expense-salary)};
+}
+function carReport(m=MONTH){
+  const ms = monthSummary(m);
+  const rows = S.cars.map(c=>({c,income:0,fuel:0,other:0,salary:0,trips:0,km:0}));
+  const byId = Object.fromEntries(rows.map(r=>[r.c.id,r]));
+  ms.trips.forEach(t=>{const r=byId[t.car_id]; if(r){r.income+=num(t.fare);r.trips++;r.km+=num(t.km);}});
+  let shared = 0;
+  ms.exps.forEach(e=>{const r=byId[e.car_id]; if(r){ if(e.category==="Fuel") r.fuel+=num(e.amount); else r.other+=num(e.amount);} else shared+=num(e.amount);});
+  let unalloc = 0;
+  ms.sal.forEach(s=>{
+    if(!s.gross) return;
+    const per = {}; s.trips.forEach(t=>{ if(byId[t.car_id]) per[t.car_id]=(per[t.car_id]||0)+num(t.fare); });
+    const tot = sum(Object.values(per));
+    if(tot>0) Object.entries(per).forEach(([cid,v])=>byId[cid].salary+=s.gross*v/tot);
+    else if(byId[s.d.assigned_car_id]) byId[s.d.assigned_car_id].salary+=s.gross;
+    else unalloc+=s.gross;
+  });
+  rows.forEach(r=>r.profit=r.income-r.fuel-r.other-r.salary);
+  return {rows:rows.filter(r=>r.c.status!=="Inactive"||r.income||r.fuel||r.other), shared, unalloc, ms};
+}
+function carOdo(c){
+  const odos = S.expenses.filter(e=>e.car_id===c.id && e.odometer).map(e=>num(e.odometer));
+  return Math.max(num(c.odometer), ...odos, 0);
+}
+function alerts(){
+  const days = num(S.settings.doc_alert_days)||30, kmA = num(S.settings.service_alert_km)||500;
+  const out = [];
+  S.documents.forEach(doc=>{
+    if(!doc.expiry_date) return;
+    const owner = doc.car_id ? car(doc.car_id) : drv(doc.driver_id);
+    if(!owner || owner.status==="Inactive") return;
+    const n = daysUntil(doc.expiry_date);
+    const who = doc.car_id ? owner.reg_no : owner.name;
+    if(n<0) out.push({lvl:"bad",ico:"📄",text:`<b>${esc(doc.doc_type)}</b> expired for ${esc(who)}`,sub:`${-n} day${n===-1?"":"s"} ago · ${fdate(doc.expiry_date)}`,go:"documents"});
+    else if(n<=days) out.push({lvl:"warn",ico:"📄",text:`<b>${esc(doc.doc_type)}</b> expiring for ${esc(who)}`,sub:`in ${n} day${n===1?"":"s"} · ${fdate(doc.expiry_date)}`,go:"documents"});
+  });
+  activeCars().forEach(c=>{
+    const last = S.expenses.filter(e=>e.car_id===c.id && e.category==="Service").sort((a,b)=>b.exp_date.localeCompare(a.exp_date))[0];
+    if(!last) return;
+    const odo = carOdo(c);
+    if(last.next_due_km){ const left = num(last.next_due_km)-odo;
+      if(left<=0) out.push({lvl:"bad",ico:"🔧",text:`<b>Service overdue</b> for ${esc(c.reg_no)}`,sub:`Due at ${num(last.next_due_km).toLocaleString("en-IN")} km · now ${odo.toLocaleString("en-IN")} km`,go:"cars"});
+      else if(left<=kmA) out.push({lvl:"warn",ico:"🔧",text:`<b>Service due soon</b> for ${esc(c.reg_no)}`,sub:`${left.toLocaleString("en-IN")} km left`,go:"cars"}); }
+    if(last.next_due_date){ const n = daysUntil(last.next_due_date);
+      if(n<0) out.push({lvl:"bad",ico:"🔧",text:`<b>Service date passed</b> for ${esc(c.reg_no)}`,sub:fdate(last.next_due_date),go:"cars"});
+      else if(n<=days) out.push({lvl:"warn",ico:"🔧",text:`<b>Service due</b> for ${esc(c.reg_no)}`,sub:`in ${n} days`,go:"cars"}); }
+  });
+  activeLoans().forEach(l=>{
+    const ls = loanSummary(l);
+    ls.overdue.forEach(o=>out.push({lvl:"bad",ico:"🏦",text:`<b>EMI overdue</b> for ${esc(carName(l.car_id))}`,sub:`${inr(l.emi_amount)} · ${mlabel(o.m)} · was due ${fdate(o.due)}`,go:"loans"}));
+    const st = emiStatus(l,todayStr().slice(0,7)), nx = emiStatus(l,shiftMonth(todayStr().slice(0,7),1));
+    [st,nx].forEach(x=>{ if(x&&x.state==="due"&&x.days<=7) out.push({lvl:"warn",ico:"🏦",text:`<b>EMI due</b> for ${esc(carName(l.car_id))}`,sub:`${inr(l.emi_amount)} ${x.days===0?"today":"in "+x.days+" day"+(x.days===1?"":"s")} · ${fdate(x.due)}`,go:"loans"}); });
+  });
+  S.credit_cards.filter(c=>c.status!=="Inactive").forEach(c=>{
+    const cs = cardSummary(c);
+    if(cs.outstanding>0 && cs.due && daysUntil(cs.due)<=7) out.push({lvl:daysUntil(cs.due)<=2?"bad":"warn",ico:"💳",text:`<b>Card bill due</b> · ${esc(cardName(c))}`,sub:`${inr(cs.outstanding)} outstanding · due ${fdate(cs.due)}`,go:"cards"});
+    if(cs.util!==null && cs.util>=80) out.push({lvl:"warn",ico:"💳",text:`<b>${Math.round(cs.util)}% of limit used</b> · ${esc(cardName(c))}`,sub:`${inr(cs.outstanding)} of ${inr(c.credit_limit)}`,go:"cards"});
+  });
+  return out.sort((a,b)=>(a.lvl==="bad"?0:1)-(b.lvl==="bad"?0:1));
+}
+
+/* ====== EMI & CARDS ====== */
+const monthDiff = (a,b) => { const [ay,am]=a.split("-").map(Number), [by,bm]=b.split("-").map(Number); return (by-ay)*12+(bm-am); };
+const loan = id => S.car_loans.find(l=>l.id===id);
+const loanName = l => l ? `${carName(l.car_id)} · ${l.lender||"Loan"}` : "—";
+function emiDueDate(l,m){ const last = new Date(+m.slice(0,4), +m.slice(5,7), 0).getDate(); return m+"-"+String(Math.min(Math.max(1,num(l.emi_day)||1),last)).padStart(2,"0"); }
+function emiStatus(l,m){
+  const i = monthDiff(l.start_month,m);
+  if(i<0 || i>=num(l.tenure_months)) return null;
+  const due = emiDueDate(l,m);
+  if(i < num(l.paid_before)) return {m,i,due,state:"paid",before:true};
+  const pay = S.expenses.find(e=>e.loan_id===l.id && e.emi_month===m);
+  if(pay) return {m,i,due,state:"paid",pay};
+  const n = daysUntil(due);
+  return {m,i,due,state:n<0?"overdue":"due",days:n};
+}
+function loanSummary(l){
+  const ten = num(l.tenure_months), cur = todayStr().slice(0,7);
+  const paidMonths = new Set(S.expenses.filter(e=>e.loan_id===l.id && e.emi_month).map(e=>e.emi_month).filter(m=>{const i=monthDiff(l.start_month,m);return i>=num(l.paid_before)&&i<ten;}));
+  const paid = Math.min(ten, num(l.paid_before)+paidMonths.size);
+  const overdue = [];
+  for(let m=shiftMonth(l.start_month,num(l.paid_before)); monthDiff(m,cur)>=0 && monthDiff(l.start_month,m)<ten; m=shiftMonth(m,1)){ const st=emiStatus(l,m); if(st&&st.state==="overdue") overdue.push(st); }
+  const remaining = ten-paid;
+  return {paid,remaining,overdue,outstanding:remaining*num(l.emi_amount),endMonth:shiftMonth(l.start_month,ten-1),pct:ten?paid/ten*100:0};
+}
+const activeLoans = () => S.car_loans.filter(l=>l.status!=="Closed");
+const card = id => S.credit_cards.find(c=>c.id===id);
+const cardName = c => c ? `${c.name}${c.last4?" ••"+c.last4:""}` : "—";
+function cardSummary(c, m=MONTH){
+  const spend = S.expenses.filter(e=>e.card_id===c.id), pays = S.card_payments.filter(p=>p.card_id===c.id);
+  const outstanding = r2(sum(spend,e=>e.amount)-sum(pays,p=>p.amount));
+  const mSpend = spend.filter(e=>inM(e.exp_date,m)), mPays = pays.filter(p=>inM(p.pay_date,m));
+  let due=null;
+  if(c.due_day){ const t=todayStr(); let m2=t.slice(0,7); due=emiDueDate({emi_day:c.due_day},m2); if(due<t) due=emiDueDate({emi_day:c.due_day},shiftMonth(m2,1)); }
+  const util = num(c.credit_limit)>0 ? outstanding/num(c.credit_limit)*100 : null;
+  return {spend,pays,outstanding,mSpend,mPays,monthSpend:sum(mSpend,e=>e.amount),monthPaid:sum(mPays,p=>p.amount),due,util};
+}
+
+/* ====== NAV ====== */
+const ICONS = {
+  dashboard:'<path d="M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z"/>',
+  trips:'<path d="M5 17h14v-5l-2-5H7l-2 5v5z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/>',
+  expenses:'<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
+  salary:'<circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M19 8v6M16 11h6"/>',
+  cars:'<rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 17v2M18 17v2M6 11h.01M18 11h.01"/>',
+  drivers:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  documents:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/>',
+  reports:'<path d="M3 3v18h18"/><path d="M7 16v-5M12 16V8M17 16v-8"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  loans:'<path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5M12 11h.01"/>',
+  cards:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  more:'<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>'
+};
+const NAV = [["dashboard","Dashboard"],["trips","Trips & Income"],["expenses","Expenses"],["salary","Driver Salary"],["cars","Cars"],["drivers","Drivers"],["loans","Car Loans / EMI"],["cards","Credit Cards"],["documents","Documents"],["reports","Reports"],["settings","Settings"]];
+const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>`;
+function drawNav(){
+  document.getElementById("sideNav").innerHTML = NAV.map(([k,l])=>`<a class="${VIEW===k?"on":""}" onclick="go('${k}')">${svg(k)}${l}</a>`).join("");
+  const tabs = [["dashboard","Home"],["trips","Trips"],["expenses","Expenses"],["salary","Salary"],["more","More"]];
+  const inMore = !["dashboard","trips","expenses","salary"].includes(VIEW);
+  document.getElementById("tabBar").innerHTML = tabs.map(([k,l])=>`<a class="${VIEW===k||(k==="more"&&inMore)?"on":""}" onclick="${k==="more"?"openMore()":`go('${k}')`}">${svg(k)}${l}</a>`).join("");
+  document.getElementById("fab").style.display = ["dashboard","trips","expenses"].includes(VIEW)?"":"none";
+}
+function go(v){ VIEW=v; closeModal(); render(); window.scrollTo(0,0); }
+function openMore(){
+  openModal("More", `<div class="list">${NAV.slice(4).map(([k,l])=>`<div class="it" onclick="go('${k}')"><div class="ico">${svg(k).replace('<svg','<svg width="18" height="18"')}</div><div class="main"><div class="t">${l}</div></div><span class="hint">›</span></div>`).join("")}</div>`, "");
+}
+function quickAdd(){
+  if(VIEW==="expenses") return expenseForm();
+  if(VIEW==="trips") return tripForm();
+  openModal("Add new", `<div class="list">
+    <div class="it" onclick="tripForm()"><div class="ico">🚕</div><div class="main"><div class="t">Trip / Collection</div><div class="d">Income from a trip or daily collection</div></div></div>
+    <div class="it" onclick="expenseForm()"><div class="ico">💸</div><div class="main"><div class="t">Expense</div><div class="d">Fuel, service, toll, rent…</div></div></div>
+    <div class="it" onclick="openEmiPicker()"><div class="ico">🏦</div><div class="main"><div class="t">Pay car EMI</div><div class="d">Record this month's loan instalment</div></div></div>
+    <div class="it" onclick="advanceForm()"><div class="ico">🤝</div><div class="main"><div class="t">Driver Advance</div><div class="d">Cash given, deducted from salary</div></div></div></div>`,"");
+}
+const monthPicker = () => `<div class="monthpick"><button onclick="MONTH=shiftMonth(MONTH,-1);render()" aria-label="Previous month">‹</button><span>${mlabel(MONTH)}</span><button onclick="MONTH=shiftMonth(MONTH,1);render()" aria-label="Next month">›</button></div>`;
+const header_ = (title, extra="", withMonth=true) => `<div class="top"><h1>${title}</h1>${withMonth?monthPicker():""}${extra}</div>`;
+
+function render(){ const ae=document.activeElement, aid=ae&&ae.id, pos=ae&&ae.selectionStart; drawNav(); const fn = {dashboard:vDash,trips:vTrips,expenses:vExpenses,salary:vSalary,cars:vCars,drivers:vDrivers,documents:vDocs,reports:vReports,settings:vSettings,loans:vLoans,cards:vCards}[VIEW]; document.getElementById("view").innerHTML = fn(); if(aid){const el=document.getElementById(aid); if(el&&el!==ae){el.focus(); try{el.setSelectionRange(pos,pos);}catch(e){}}} }
+
+/* ====== VIEWS ====== */
+function trendBars(n=6){
+  const months = Array.from({length:n},(_,i)=>shiftMonth(MONTH,i-n+1));
+  const data = months.map(m=>{const s=monthSummary(m);return {m,inc:s.income,exp:s.expense+s.salary};});
+  const max = Math.max(1,...data.flatMap(d=>[d.inc,d.exp]));
+  return `<div class="bars">${data.map(d=>`<div class="g" title="${mlabel(d.m)}: income ${inr(d.inc)}, costs ${inr(d.exp)}"><div class="pair"><div class="b" style="height:${d.inc/max*100}%;background:var(--accent)"></div><div class="b" style="height:${d.exp/max*100}%;background:var(--muted);opacity:.55"></div></div><div class="lb" style="${d.m===MONTH?"color:var(--ink);font-weight:700":""}">${mshort(d.m)}</div></div>`).join("")}</div>
+  <div class="legend" style="margin-top:8px"><span><i style="background:var(--accent)"></i>Income</span><span><i style="background:var(--muted);opacity:.55"></i>Expenses + salary</span></div>`;
+}
+function vDash(){
+  const s = monthSummary(), prev = monthSummary(shiftMonth(MONTH,-1));
+  const al = alerts(); const cr = carReport();
+  const advOut = sum(S.drivers,d=>Math.max(0,advanceBalance(d.id)));
+  const delta = prev.income ? Math.round((s.income-prev.income)/prev.income*100) : null;
+  const unpaid = s.sal.filter(x=>x.status!=="paid" && x.net>0);
+  return header_("Dashboard") + `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">Income</div><div class="v">${inr(s.income)}</div><div class="s">${s.trips.length} trips${delta!==null?` · <span class="${delta>=0?"pos":"neg"}">${delta>=0?"▲":"▼"} ${Math.abs(delta)}%</span>`:""}</div></div>
+    <div class="card kpi"><div class="l">Expenses</div><div class="v">${inr(s.expense)}</div><div class="s">${s.exps.length} entries${sum(s.exps.filter(e=>e.card_id),e=>e.amount)?` · 💳 ${inr(sum(s.exps.filter(e=>e.card_id),e=>e.amount))}`:""}</div></div>
+    <div class="card kpi"><div class="l">Driver salary</div><div class="v">${inr(s.salary)}</div><div class="s">${unpaid.length?unpaid.length+" unpaid":"all paid"}</div></div>
+    <div class="card kpi"><div class="l">Net profit</div><div class="v ${s.profit>=0?"pos":"neg"}">${inr(s.profit)}</div><div class="s">${s.income?Math.round(s.profit/s.income*100)+"% margin":"—"}</div></div>
+  </div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Income vs costs <span class="hint">last 6 months</span></h3>${trendBars()}</div>
+    <div class="card"><h3>Alerts <span class="badge ${al.some(a=>a.lvl==="bad")?"bad":al.length?"warn":"good"}">${al.length||"All clear"}</span></h3>
+      ${al.length?al.slice(0,6).map(a=>`<div class="alert ${a.lvl}" onclick="go('${a.go}')" style="cursor:pointer"><span>${a.ico}</span><div>${a.text}<div class="hint">${a.sub}</div></div></div>`).join("")+(al.length>6?`<div class="hint">+${al.length-6} more</div>`:""):`<div class="empty">No documents or services due 👍</div>`}
+      ${advOut>0?`<div class="alert warn" onclick="go('salary')" style="cursor:pointer"><span>🤝</span><div><b>${inr(advOut)}</b> advances outstanding<div class="hint">Recovered via salary deductions</div></div></div>`:""}
+    </div>
+  </div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Profit per car <a class="hint" style="cursor:pointer" onclick="go('reports')">Full report ›</a></h3>
+      <div class="tablewrap"><table><tr><th>Car</th><th class="n">Income</th><th class="n hide-m">Costs</th><th class="n">Profit</th></tr>
+      ${cr.rows.map(r=>`<tr><td><b>${esc(r.c.reg_no)}</b><div class="hint">${r.trips} trips</div></td><td class="n">${inr(r.income)}</td><td class="n hide-m">${inr(r.fuel+r.other+r.salary)}</td><td class="n ${r.profit>=0?"pos":"neg"}">${inr(r.profit)}</td></tr>`).join("")||`<tr><td colspan="4" class="empty">Add a car to get started</td></tr>`}
+      </table></div></div>
+    <div class="card"><h3>Recent activity</h3><div class="list">${recentActivity()}</div></div>
+  </div>`;
+}
+function recentActivity(){
+  const items = [...S.trips.slice(0,6).map(t=>({d:t.trip_date,c:t.created_at,h:tripItem(t)})), ...S.expenses.slice(0,6).map(e=>({d:e.exp_date,c:e.created_at,h:expItem(e)}))]
+    .sort((a,b)=>(b.d+b.c).localeCompare(a.d+a.c)).slice(0,7);
+  return items.map(i=>i.h).join("") || `<div class="empty">No entries yet</div>`;
+}
+const tripItem = t => `<div class="it" onclick="tripForm('${t.id}')"><div class="ico">🚕</div><div class="main"><div class="t">${esc([t.from_place,t.to_place].filter(Boolean).join(" → ")||t.customer||"Trip")}</div><div class="d">${fdate(t.trip_date)} · ${esc(carName(t.car_id))} · ${esc(drvName(t.driver_id))}${t.customer&&(t.from_place||t.to_place)?" · "+esc(t.customer):""}</div></div><div class="amt pos">+${inr(t.fare)}</div></div>`;
+const expItem = e => `<div class="it" onclick="expenseForm('${e.id}')"><div class="ico">${CAT_ICON[e.category]||"📦"}</div><div class="main"><div class="t">${esc(e.category)}${e.description?` <span class="hint">· ${esc(e.description)}</span>`:""}</div><div class="d">${fdate(e.exp_date)} · ${e.car_id?esc(carName(e.car_id)):"General"}${e.liters?` · ${num(e.liters)} L`:""}${e.driver_id?" · "+esc(drvName(e.driver_id)):""}${e.emi_month?" · EMI "+mshort(e.emi_month)+" "+e.emi_month.slice(2,4):""}${e.card_id?` · 💳 ${esc(cardName(card(e.card_id)))}`:e.payment_mode&&e.payment_mode!=="Cash"?" · "+esc(e.payment_mode):""}</div></div><div class="amt neg">−${inr(e.amount)}</div></div>`;
+
+function carOpts(sel, all="All cars"){ return `<option value="">${all}</option>`+S.cars.map(c=>`<option value="${c.id}" ${sel===c.id?"selected":""}>${esc(c.reg_no)}</option>`).join(""); }
+function drvOpts(sel, all="All drivers"){ return `<option value="">${all}</option>`+S.drivers.map(d=>`<option value="${d.id}" ${sel===d.id?"selected":""}>${esc(d.name)}</option>`).join(""); }
+function setF(v,k,val){ F[v]=F[v]||{}; F[v][k]=val; render(); }
+
+function vTrips(){
+  const f = F.trips||{};
+  let rows = S.trips.filter(t=>inM(t.trip_date) && (!f.car||t.car_id===f.car) && (!f.drv||t.driver_id===f.drv) && (!f.mode||t.payment_mode===f.mode));
+  if(f.q){const q=f.q.toLowerCase(); rows=rows.filter(t=>[t.customer,t.from_place,t.to_place,t.notes].join(" ").toLowerCase().includes(q));}
+  const byMode = PAY_MODES.map(m=>[m,sum(rows.filter(t=>(t.payment_mode||"Cash")===m),t=>t.fare)]).filter(x=>x[1]);
+  return header_("Trips & Income", `<button class="btn pri hide-m" onclick="tripForm()">+ Add trip</button>`) + `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">Total income</div><div class="v">${inr(sum(rows,t=>t.fare))}</div></div>
+    <div class="card kpi"><div class="l">Trips</div><div class="v">${rows.length}</div></div>
+    <div class="card kpi"><div class="l">Distance</div><div class="v">${Math.round(sum(rows,t=>t.km)).toLocaleString("en-IN")} km</div></div>
+    <div class="card kpi"><div class="l">By payment</div><div class="s" style="margin-top:6px;color:var(--ink)">${byMode.map(([m,v])=>`${m}: <b>${inr(v)}</b>`).join("<br>")||"—"}</div></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="filters">
+      <input type="search" id="tq" placeholder="Search customer, place…" value="${esc(f.q||"")}" oninput="setF('trips','q',this.value)">
+      <select onchange="setF('trips','car',this.value)">${carOpts(f.car)}</select>
+      <select onchange="setF('trips','drv',this.value)">${drvOpts(f.drv)}</select>
+      <select onchange="setF('trips','mode',this.value)"><option value="">All payments</option>${PAY_MODES.map(m=>`<option ${f.mode===m?"selected":""}>${m}</option>`).join("")}</select>
+    </div>
+    <div class="list">${rows.slice(0,400).map(tripItem).join("")||`<div class="empty">No trips for ${mlabel(MONTH)}.<br><br><button class="btn pri" onclick="tripForm()">+ Add trip</button></div>`}</div>
+    ${rows.length>400?`<div class="hint" style="margin-top:8px">Showing 400 of ${rows.length}. Use filters to narrow down.</div>`:""}
+  </div>`;
+}
+function vExpenses(){
+  const f = F.expenses||{};
+  let rows = S.expenses.filter(e=>inM(e.exp_date) && (!f.car||(f.car==="_g"?!e.car_id:e.car_id===f.car)) && (!f.cat||e.category===f.cat) && (!f.pay||(f.pay.startsWith('card:')?e.card_id===f.pay.slice(5):e.payment_mode===f.pay)));
+  if(f.q){const q=f.q.toLowerCase(); rows=rows.filter(e=>[e.description,e.category].join(" ").toLowerCase().includes(q));}
+  const cats = {}; rows.forEach(e=>cats[e.category]=(cats[e.category]||0)+num(e.amount));
+  const top5 = Object.entries(cats).sort((a,b)=>b[1]-a[1]); const tot = sum(rows,e=>e.amount);
+  const fuel = rows.filter(e=>e.category==="Fuel");
+  return header_("Expenses", `<button class="btn pri hide-m" onclick="expenseForm()">+ Add expense</button>`) + `
+  <div class="grid two">
+    <div class="card"><h3>Where the money went <span>${inr(tot)}</span></h3>
+      ${top5.map(([c,v])=>`<div style="margin-bottom:9px"><div class="row" style="justify-content:space-between;font-size:14px"><span>${CAT_ICON[c]||"📦"} ${esc(c)}</span><b>${inr(v)}</b></div><div style="height:7px;background:var(--bg);border-radius:9px;margin-top:4px"><div style="height:100%;width:${v/tot*100}%;background:var(--accent);border-radius:9px"></div></div></div>`).join("")||`<div class="empty">No expenses this month</div>`}
+    </div>
+    <div class="card"><h3>Paid by</h3>${PAY_MODES.map(m=>[m,sum(rows.filter(e=>(e.payment_mode||"Cash")===m),e=>e.amount)]).filter(x=>x[1]).map(([m,v])=>`<div class="row" style="justify-content:space-between;font-size:14px;margin-bottom:6px"><span>${m==="Credit Card"?"💳 ":""}${m}</span><b>${inr(v)}</b></div>`).join("")||`<div class="hint">—</div>`}
+      ${S.credit_cards.length?`<div class="hint" style="margin-top:4px">${S.credit_cards.map(c=>`${esc(cardName(c))}: <b>${inr(sum(rows.filter(e=>e.card_id===c.id),e=>e.amount))}</b>`).join(" · ")}</div>`:""}
+    </div>
+  </div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Fuel this month</h3>
+      <div class="stats" style="margin-top:0"><div><div class="l">Spent</div><div class="v">${inr(sum(fuel,e=>e.amount))}</div></div><div><div class="l">Litres / kg</div><div class="v">${Math.round(sum(fuel,e=>e.liters))}</div></div><div><div class="l">Fills</div><div class="v">${fuel.length}</div></div></div>
+      <div class="hint" style="margin-top:10px">Per car: ${activeCars().map(c=>{const cf=fuel.filter(e=>e.car_id===c.id);return `${esc(c.reg_no)} <b>${inr(sum(cf,e=>e.amount))}</b>`;}).join(" · ")||"—"}</div>
+    </div>
+    <div class="card"><h3>EMIs this month <a class="hint" style="cursor:pointer" onclick="go('loans')">Loans ›</a></h3>${emiMonthList()}</div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="filters">
+      <input type="search" id="eq" placeholder="Search…" value="${esc(f.q||"")}" oninput="setF('expenses','q',this.value)">
+      <select onchange="setF('expenses','car',this.value)"><option value="">All (cars + general)</option><option value="_g" ${f.car==="_g"?"selected":""}>General / office only</option>${S.cars.map(c=>`<option value="${c.id}" ${f.car===c.id?"selected":""}>${esc(c.reg_no)}</option>`).join("")}</select>
+      <select onchange="setF('expenses','cat',this.value)"><option value="">All categories</option>${EXP_CATS.map(c=>`<option ${f.cat===c?"selected":""}>${c}</option>`).join("")}</select>
+      <select onchange="setF('expenses','pay',this.value)"><option value="">All payments</option>${PAY_MODES.map(m=>`<option ${f.pay===m?"selected":""}>${m}</option>`).join("")}${S.credit_cards.map(c=>`<option value="card:${c.id}" ${f.pay==="card:"+c.id?"selected":""}>💳 ${esc(cardName(c))}</option>`).join("")}</select>
+    </div>
+    <div class="list">${rows.slice(0,400).map(expItem).join("")||`<div class="empty">No expenses found.<br><br><button class="btn pri" onclick="expenseForm()">+ Add expense</button></div>`}</div>
+  </div>`;
+}
+function vSalary(){
+  const list = S.drivers.filter(d=>d.status!=="Inactive" || S.salaries.some(s=>s.driver_id===d.id&&s.month===MONTH)).map(d=>salaryCalc(d));
+  const st = {draft:["Not saved",""],pending:["Unpaid","warn"],partial:["Part paid","warn"],paid:["Paid","good"]};
+  const advRows = S.advances.slice(0,30);
+  return header_("Driver Salary", `<button class="btn hide-m" onclick="advanceForm()">+ Advance</button>`) + `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">Total payable</div><div class="v">${inr(sum(list,s=>s.net))}</div></div>
+    <div class="card kpi"><div class="l">Paid</div><div class="v pos">${inr(sum(list,s=>s.paid))}</div></div>
+    <div class="card kpi"><div class="l">Balance due</div><div class="v ${sum(list,s=>Math.max(0,s.net-s.paid))>0?"neg":""}">${inr(sum(list,s=>Math.max(0,s.net-s.paid)))}</div></div>
+    <div class="card kpi"><div class="l">Advances outstanding</div><div class="v">${inr(sum(S.drivers,d=>Math.max(0,advanceBalance(d.id))))}</div></div>
+  </div>
+  <div class="grid carcards" style="margin-top:14px">
+  ${list.map(s=>`<div class="card sal">
+    <h3><span>${esc(s.d.name)}<div class="hint" style="font-weight:400">${PAY_TYPES[s.d.pay_type]} · ${esc(carName(s.d.assigned_car_id))}</div></span><span class="badge ${st[s.status][1]}">${st[s.status][0]}</span></h3>
+    <div class="brk">
+      <span class="hint">Trips / days / earnings</span><span>${s.tripsCount} · ${s.days}d · ${inr(s.earnings)}</span>
+      ${s.d.pay_type==="fixed"?`<span>Fixed salary</span><span>${inr(s.fixed)}</span>`:""}
+      ${s.d.pay_type==="commission"?`<span>Commission ${num(s.d.commission_pct)}% of ${inr(s.earnings)}</span><span>${inr(s.commission)}</span>`:""}
+      ${s.d.pay_type==="per_trip"?`<span>${s.tripsCount} trips × ${inr(s.d.per_trip_rate)}</span><span>${inr(s.tripPay)}</span>`:""}
+      ${s.d.pay_type==="per_day"?`<span>${s.days} days × ${inr(s.d.per_day_rate)}</span><span>${inr(s.dayPay)}</span>`:""}
+      ${s.bonus?`<span>Bonus</span><span>+${inr(s.bonus)}</span>`:""}
+      ${s.advDed?`<span>Advance deduction</span><span class="neg">−${inr(s.advDed)}</span>`:""}
+      ${s.otherDed?`<span>Other deduction</span><span class="neg">−${inr(s.otherDed)}</span>`:""}
+      ${s.paid?`<span>Paid${s.saved?.paid_date?" on "+fdate(s.saved.paid_date):""}</span><span class="pos">${inr(s.paid)}</span>`:""}
+    </div>
+    <div class="net"><span>Net pay</span><span>${inr(s.net)}</span></div>
+    <div class="row" style="margin-top:12px;flex-wrap:wrap">
+      <button class="btn sm" onclick="salaryForm('${s.d.id}')">${s.saved?"Edit":"Review & save"}</button>
+      <button class="btn sm pri" onclick="payForm('${s.d.id}')" ${s.status==="paid"?"disabled":""}>Pay</button>
+      ${s.saved?`<button class="btn sm" onclick="payslip('${s.d.id}')">Payslip</button>`:""}
+    </div>
+    ${s.outstanding>0||advanceBalance(s.d.id)>0?`<div class="hint" style="margin-top:8px">Advance balance after this month: ${inr(Math.max(0,s.outstanding-s.advDed))}</div>`:""}
+  </div>`).join("")||`<div class="card empty">Add drivers first.<br><br><button class="btn pri" onclick="go('drivers')">Go to Drivers</button></div>`}
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Advances given <button class="btn sm" onclick="advanceForm()">+ Add</button></h3>
+    <div class="list">${advRows.map(a=>`<div class="it" onclick="advanceForm('${a.id}')"><div class="ico">🤝</div><div class="main"><div class="t">${esc(drvName(a.driver_id))}</div><div class="d">${fdate(a.adv_date)}${a.note?" · "+esc(a.note):""}</div></div><div class="amt">${inr(a.amount)}</div></div>`).join("")||`<div class="empty">No advances recorded</div>`}</div>
+  </div>
+  <p class="hint">Salary is worked out from this month's trips: <b>Fixed</b> pays the set amount, <b>Commission</b> pays a % of the driver's trip income, <b>Per trip</b> pays per trip, <b>Per day</b> pays for each day with at least one trip (you can change the days before saving). Outstanding advances are deducted automatically; you can change the amount.</p>`;
+}
+function vCars(){
+  const cr = carReport(); const byId = Object.fromEntries(cr.rows.map(r=>[r.c.id,r]));
+  return header_("Cars", `<button class="btn pri" onclick="carForm()">+ Add car</button>`) + `<div class="grid carcards">
+  ${S.cars.map(c=>{const r=byId[c.id]||{income:0,fuel:0,other:0,salary:0,profit:0,trips:0};
+    const d = S.drivers.filter(x=>x.assigned_car_id===c.id).map(x=>x.name).join(", ");
+    const docs = S.documents.filter(x=>x.car_id===c.id);
+    const bad = docs.filter(x=>x.expiry_date&&daysUntil(x.expiry_date)<0).length, warn = docs.filter(x=>x.expiry_date&&daysUntil(x.expiry_date)>=0&&daysUntil(x.expiry_date)<=(num(S.settings.doc_alert_days)||30)).length;
+    const lastSvc = S.expenses.filter(e=>e.car_id===c.id&&e.category==="Service").sort((a,b)=>b.exp_date.localeCompare(a.exp_date))[0];
+    return `<div class="card carcard" onclick="carForm('${c.id}')" style="cursor:pointer">
+      <div class="row" style="justify-content:space-between"><span class="plate">${esc(c.reg_no)}</span>${c.status==="Inactive"?`<span class="badge">Inactive</span>`:bad?`<span class="badge bad">${bad} doc expired</span>`:warn?`<span class="badge warn">${warn} doc due</span>`:`<span class="badge good">OK</span>`}</div>
+      <div style="margin-top:8px;font-weight:600">${esc(c.model||"")} <span class="hint">${esc(c.fuel_type||"")}</span></div>
+      <div class="hint">Driver: ${esc(d||"none")} · ${carOdo(c).toLocaleString("en-IN")} km</div>
+      ${S.car_loans.filter(l=>l.car_id===c.id&&l.status!=="Closed").map(l=>{const ls=loanSummary(l);return `<div class="hint">🏦 EMI ${inr(l.emi_amount)} · ${ls.remaining} left${ls.overdue.length?` · <span class="neg">${ls.overdue.length} overdue</span>`:""}</div>`;}).join("")}
+      ${lastSvc?`<div class="hint">Last service ${fdate(lastSvc.exp_date)}${lastSvc.next_due_km?` · next at ${num(lastSvc.next_due_km).toLocaleString("en-IN")} km`:""}</div>`:""}
+      <div class="stats"><div><div class="l">Income</div><div class="v">${inr(r.income)}</div></div><div><div class="l">Costs</div><div class="v">${inr(r.fuel+r.other+r.salary)}</div></div><div><div class="l">Profit</div><div class="v ${r.profit>=0?"pos":"neg"}">${inr(r.profit)}</div></div></div>
+    </div>`;}).join("")||`<div class="card empty">No cars yet.</div>`}</div><p class="hint">Figures are for ${mlabel(MONTH)}. Costs include fuel, car expenses and the driver salary share.</p>`;
+}
+function vDrivers(){
+  return header_("Drivers", `<button class="btn pri" onclick="driverForm()">+ Add driver</button>`, false) + `<div class="card"><div class="list">
+  ${S.drivers.map(d=>{const bal=advanceBalance(d.id);const rate = d.pay_type==="fixed"?inr(d.fixed_salary)+"/month":d.pay_type==="commission"?num(d.commission_pct)+"% commission":d.pay_type==="per_trip"?inr(d.per_trip_rate)+"/trip":inr(d.per_day_rate)+"/day";
+    return `<div class="it" onclick="driverForm('${d.id}')"><div class="ico">👤</div><div class="main"><div class="t">${esc(d.name)} ${d.status==="Inactive"?`<span class="badge">Inactive</span>`:""}</div><div class="d">${esc(d.phone||"")} · ${rate} · ${esc(carName(d.assigned_car_id))}</div></div>${bal>0?`<span class="badge warn">Adv ${inr(bal)}</span>`:""}</div>`;}).join("")||`<div class="empty">No drivers yet</div>`}
+  </div></div>`;
+}
+function vDocs(){
+  const f = F.docs||{};
+  const days = num(S.settings.doc_alert_days)||30;
+  let rows = S.documents.slice().sort((a,b)=>(a.expiry_date||"9999").localeCompare(b.expiry_date||"9999"));
+  if(f.k==="car") rows=rows.filter(d=>d.car_id); if(f.k==="drv") rows=rows.filter(d=>d.driver_id);
+  if(f.st==="due") rows=rows.filter(d=>d.expiry_date&&daysUntil(d.expiry_date)<=days);
+  return header_("Documents", `<button class="btn pri" onclick="docForm()">+ Add document</button>`, false) + `<div class="card">
+    <div class="filters"><select onchange="setF('docs','k',this.value)"><option value="">Cars & drivers</option><option value="car" ${f.k==="car"?"selected":""}>Car documents</option><option value="drv" ${f.k==="drv"?"selected":""}>Driver documents</option></select>
+    <select onchange="setF('docs','st',this.value)"><option value="">All</option><option value="due" ${f.st==="due"?"selected":""}>Expired / due soon</option></select></div>
+    <div class="list">${rows.map(d=>{const n=d.expiry_date?daysUntil(d.expiry_date):null; const b = n===null?["No expiry",""]:n<0?["Expired","bad"]:n<=days?[n+" days left","warn"]:["Valid","good"];
+      return `<div class="it" onclick="docForm('${d.id}')"><div class="ico">${d.car_id?"🚕":"🪪"}</div><div class="main"><div class="t">${esc(d.doc_type)} · ${esc(d.car_id?carName(d.car_id):drvName(d.driver_id))}</div><div class="d">${d.doc_number?esc(d.doc_number)+" · ":""}Expires ${fdate(d.expiry_date)}</div></div><span class="badge ${b[1]}">${b[0]}</span></div>`;}).join("")||`<div class="empty">No documents yet. Add insurance, permit, PUC, fitness and licences to get expiry alerts.</div>`}</div></div>`;
+}
+function vReports(){
+  const cr = carReport(); const s = cr.ms;
+  const T = k => sum(cr.rows,r=>r[k]);
+  const cats = {}; s.exps.forEach(e=>cats[e.category]=(cats[e.category]||0)+num(e.amount));
+  const months = Array.from({length:6},(_,i)=>shiftMonth(MONTH,i-5)).map(m=>({m,...monthSummary(m)}));
+  const drvRows = s.sal.map(x=>({n:x.d.name,trips:x.tripsCount,inc:x.earnings,km:sum(x.trips,t=>t.km),sal:x.gross}));
+  return header_("Reports", `<button class="btn" onclick="exportCSV()">⬇ CSV</button>`) + `
+  <div class="card"><h3>Profit per car · ${mlabel(MONTH)}</h3><div class="tablewrap"><table>
+    <tr><th>Car</th><th class="n">Trips</th><th class="n">Km</th><th class="n">Income</th><th class="n">Fuel</th><th class="n">Other exp.</th><th class="n">Salary share</th><th class="n">Profit</th><th class="n">₹/km</th></tr>
+    ${cr.rows.map(r=>`<tr><td><b>${esc(r.c.reg_no)}</b></td><td class="n">${r.trips}</td><td class="n">${Math.round(r.km).toLocaleString("en-IN")}</td><td class="n">${inr(r.income)}</td><td class="n">${inr(r.fuel)}</td><td class="n">${inr(r.other)}</td><td class="n">${inr(r.salary)}</td><td class="n ${r.profit>=0?"pos":"neg"}">${inr(r.profit)}</td><td class="n">${r.km?"₹"+(r.profit/r.km).toFixed(1):"—"}</td></tr>`).join("")}
+    <tr><td>General / office expenses</td><td></td><td></td><td></td><td></td><td class="n">${inr(cr.shared)}</td><td class="n">${inr(cr.unalloc)}</td><td class="n neg">${inr(-cr.shared-cr.unalloc)}</td><td></td></tr>
+    <tr class="tot"><td>Total</td><td class="n">${T("trips")}</td><td class="n">${Math.round(T("km")).toLocaleString("en-IN")}</td><td class="n">${inr(T("income"))}</td><td class="n">${inr(T("fuel"))}</td><td class="n">${inr(T("other")+cr.shared)}</td><td class="n">${inr(T("salary")+cr.unalloc)}</td><td class="n ${s.profit>=0?"pos":"neg"}">${inr(s.profit)}</td><td></td></tr>
+  </table></div></div>
+  <div class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Monthly trend</h3><div class="tablewrap"><table><tr><th>Month</th><th class="n">Income</th><th class="n">Expenses</th><th class="n">Salary</th><th class="n">Profit</th></tr>
+      ${months.map(m=>`<tr><td>${mlabel(m.m)}</td><td class="n">${inr(m.income)}</td><td class="n">${inr(m.expense)}</td><td class="n">${inr(m.salary)}</td><td class="n ${m.profit>=0?"pos":"neg"}">${inr(m.profit)}</td></tr>`).join("")}
+    </table></div></div>
+    <div class="card"><h3>Expenses by category</h3><table>${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<tr><td>${CAT_ICON[c]||"📦"} ${esc(c)}</td><td class="n">${inr(v)}</td></tr>`).join("")||`<tr><td class="empty">No expenses</td></tr>`}</table></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Driver performance</h3><div class="tablewrap"><table><tr><th>Driver</th><th class="n">Trips</th><th class="n">Km</th><th class="n">Income brought</th><th class="n">Salary cost</th><th class="n">Salary % of income</th></tr>
+    ${drvRows.map(r=>`<tr><td>${esc(r.n)}</td><td class="n">${r.trips}</td><td class="n">${Math.round(r.km).toLocaleString("en-IN")}</td><td class="n">${inr(r.inc)}</td><td class="n">${inr(r.sal)}</td><td class="n">${r.inc?Math.round(r.sal/r.inc*100)+"%":"—"}</td></tr>`).join("")}
+  </table></div></div>`;
+}
+function vSettings(){
+  const st = S.settings;
+  return header_("Settings","",false) + `<div class="card" style="max-width:640px"><h3>Business details</h3>
+    <div class="fg">
+      <div class="f full"><label>Business name</label><input id="s_name" value="${esc(st.company_name||"")}"></div>
+      <div class="f"><label>Phone</label><input id="s_phone" value="${esc(st.phone||"")}"></div>
+      <div class="f"><label>Address</label><input id="s_addr" value="${esc(st.address||"")}"></div>
+      <div class="f"><label>Alert documents/service this many days before</label><input id="s_days" type="number" value="${esc(st.doc_alert_days??30)}"></div>
+      <div class="f"><label>Alert service this many km before due</label><input id="s_km" type="number" value="${esc(st.service_alert_km??500)}"></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn pri" onclick="saveSettings()">Save settings</button></div></div>
+  <div class="card" style="max-width:640px;margin-top:14px"><h3>Backup</h3>
+    <p class="hint" style="margin-top:0">Data is saved in your cloud database and shared with everyone who opens this app file. Download a backup copy any time.</p>
+    <button class="btn" onclick="backup()">⬇ Download backup (JSON)</button> <button class="btn" onclick="reload(true)">↻ Refresh data</button></div>
+  <div class="card" style="max-width:640px;margin-top:14px"><h3>Start fresh</h3>
+    <p class="hint" style="margin-top:0">The app came with sample cars, drivers and entries so you can try it. When you're ready, remove all trips, expenses, salaries, advances, documents, loans, credit cards, drivers and cars — for everyone using this app. Download a backup first if unsure.</p>
+    <button class="btn danger" onclick="wipeAll()">Delete all data…</button></div>
+  <div class="card" style="max-width:640px;margin-top:14px"><h3>Keep this file private</h3><p class="hint" style="margin:0">This app has no login. Anyone who gets a copy of this file can see and change your business data, so only share it with people you trust.</p></div>`;
+}
+
+function emiMonthList(m=MONTH){
+  const items = activeLoans().map(l=>({l,st:emiStatus(l,m)})).filter(x=>x.st);
+  if(!items.length) return `<div class="empty">No EMIs for ${mlabel(m)}</div>`;
+  return `<div class="list">${items.map(({l,st})=>`<div class="it" ${st.state!=="paid"?`onclick="payEmi('${l.id}','${m}')"`:st.pay?`onclick="expenseForm('${st.pay.id}')"`:""}><div class="ico">🏦</div><div class="main"><div class="t">${esc(carName(l.car_id))} <span class="hint">· ${esc(l.lender||"")}</span></div><div class="d">Due ${fdate(st.due)}${st.pay?` · paid ${fdate(st.pay.exp_date)}${st.pay.card_id?" · 💳":""}`:""}</div></div><div style="text-align:right"><div class="amt">${inr(l.emi_amount)}</div>${emiBadge(st)}</div></div>`).join("")}</div>`;
+}
+const emiBadge = st => st.state==="paid"?`<span class="badge good">Paid</span>`:st.state==="overdue"?`<span class="badge bad">Overdue</span>`:`<span class="badge warn">${st.days===0?"Due today":"Due in "+st.days+"d"}</span>`;
+function payEmi(lid, m){
+  const l = loan(lid); const today = todayStr();
+  expenseForm(null,{category:"Car EMI", car_id:l.car_id, amount:l.emi_amount, loan_id:l.id, emi_month:m, payment_mode:"Bank Transfer", exp_date: m===today.slice(0,7)||m<today.slice(0,7) ? today : emiDueDate(l,m), description:`EMI ${mlabel(m)} · ${l.lender||""}`.trim()});
+}
+function openEmiPicker(){
+  const m = todayStr().slice(0,7);
+  const due = activeLoans().flatMap(l=>{ const ls=loanSummary(l); const cur=emiStatus(l,m); return [...ls.overdue, ...(cur&&cur.state==="due"?[cur]:[])].map(st=>({l,st})); });
+  if(!S.car_loans.length) return loanForm();
+  if(due.length===1) return payEmi(due[0].l.id, due[0].st.m);
+  openModal("Pay car EMI", due.length?`<div class="list">${due.map(({l,st})=>`<div class="it" onclick="payEmi('${l.id}','${st.m}')"><div class="ico">🏦</div><div class="main"><div class="t">${esc(carName(l.car_id))} · ${mlabel(st.m)}</div><div class="d">${esc(l.lender||"")} · due ${fdate(st.due)}</div></div><div style="text-align:right"><div class="amt">${inr(l.emi_amount)}</div>${emiBadge(st)}</div></div>`).join("")}</div>`:`<div class="empty">All EMIs for this month are paid 👍</div>`, "");
+}
+function vLoans(){
+  const loans = S.car_loans.slice().sort((a,b)=>(a.status==="Closed")-(b.status==="Closed"));
+  const sts = activeLoans().map(l=>({l,st:emiStatus(l,MONTH)})).filter(x=>x.st);
+  const all = activeLoans().map(l=>({l,ls:loanSummary(l)}));
+  const overdueAmt = sum(all,x=>x.ls.overdue.length*num(x.l.emi_amount));
+  return header_("Car Loans / EMI", `<button class="btn pri" onclick="loanForm()">+ Add loan</button>`) + `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">EMIs this month</div><div class="v">${inr(sum(sts,x=>x.l.emi_amount))}</div><div class="s">${sts.length} loan${sts.length===1?"":"s"}</div></div>
+    <div class="card kpi"><div class="l">Paid this month</div><div class="v pos">${inr(sum(sts.filter(x=>x.st.state==="paid"),x=>x.l.emi_amount))}</div></div>
+    <div class="card kpi"><div class="l">Overdue</div><div class="v ${overdueAmt?"neg":""}">${inr(overdueAmt)}</div><div class="s">${sum(all,x=>x.ls.overdue.length)} EMI(s)</div></div>
+    <div class="card kpi"><div class="l">Total loan balance</div><div class="v">${inr(sum(all,x=>x.ls.outstanding))}</div><div class="s">remaining EMIs</div></div>
+  </div>
+  <div class="grid carcards" style="margin-top:14px">
+  ${loans.map(l=>{ const ls=loanSummary(l), st=emiStatus(l,MONTH);
+    return `<div class="card">
+      <div class="row" style="justify-content:space-between"><span class="plate" style="font-weight:800;letter-spacing:.04em;background:var(--accent);color:var(--accent-ink);padding:3px 9px;border-radius:6px;font-size:14px">${esc(carName(l.car_id))}</span>${l.status==="Closed"?`<span class="badge">Closed</span>`:st?emiBadge(st):`<span class="badge">No EMI this month</span>`}</div>
+      <div style="margin-top:8px;font-weight:600">${esc(l.lender||"Loan")} <span class="hint">${esc(l.loan_ref||"")}</span></div>
+      <div class="hint">${inr(l.emi_amount)} on day ${num(l.emi_day)} · ${mlabel(l.start_month)} → ${mlabel(ls.endMonth)}</div>
+      <div style="height:8px;background:var(--bg);border-radius:9px;margin-top:10px"><div style="height:100%;width:${ls.pct}%;background:var(--good);border-radius:9px"></div></div>
+      <div class="hint" style="margin-top:4px">${ls.paid} of ${num(l.tenure_months)} EMIs paid</div>
+      <div class="stats"><div><div class="l">EMIs left</div><div class="v">${ls.remaining}</div></div><div><div class="l">Balance</div><div class="v">${inr(ls.outstanding)}</div></div><div><div class="l">Overdue</div><div class="v ${ls.overdue.length?"neg":""}">${ls.overdue.length}</div></div></div>
+      ${ls.overdue.length?`<div class="alert bad" style="margin:10px 0 0">⚠️ <div>Unpaid: ${ls.overdue.map(o=>`<a style="cursor:pointer;text-decoration:underline" onclick="payEmi('${l.id}','${o.m}')">${mshort(o.m)} ${o.m.slice(2,4)}</a>`).join(", ")}</div></div>`:""}
+      <div class="row" style="margin-top:12px;flex-wrap:wrap">
+        ${st&&st.state!=="paid"&&l.status!=="Closed"?`<button class="btn sm pri" onclick="payEmi('${l.id}','${MONTH}')">Pay ${mshort(MONTH)} EMI</button>`:""}
+        <button class="btn sm" onclick="loanForm('${l.id}')">Edit</button>
+        <button class="btn sm" onclick="loanHistory('${l.id}')">History</button>
+      </div></div>`;}).join("")||`<div class="card empty">No car loans yet.<br><br><button class="btn pri" onclick="loanForm()">+ Add loan</button></div>`}
+  </div>
+  <p class="hint">Paying an EMI records it as a <b>Car EMI</b> expense on that car, so it counts in the car's profit. You can pay by bank, UPI or credit card.</p>`;
+}
+function loanHistory(id){
+  const l = loan(id), pays = S.expenses.filter(e=>e.loan_id===id).sort((a,b)=>(b.emi_month||"").localeCompare(a.emi_month||""));
+  openModal(`EMI history · ${esc(carName(l.car_id))}`, `<div class="list">${pays.map(e=>`<div class="it" onclick="expenseForm('${e.id}')"><div class="ico">🏦</div><div class="main"><div class="t">${e.emi_month?mlabel(e.emi_month):"EMI"}</div><div class="d">Paid ${fdate(e.exp_date)} · ${e.card_id?"💳 "+esc(cardName(card(e.card_id))):esc(e.payment_mode||"")}</div></div><div class="amt">${inr(e.amount)}</div></div>`).join("")||`<div class="empty">No EMIs recorded in the app yet</div>`}</div>
+  ${num(l.paid_before)?`<p class="hint">Plus ${num(l.paid_before)} EMIs paid before this loan was added.</p>`:""}`, "");
+}
+function loanForm(id){
+  const l = id ? loan(id) : {start_month:MONTH, tenure_months:60, emi_day:5, paid_before:0, status:"Active"};
+  openModal(id?"Edit car loan":"Add car loan", `<div class="fg">
+    ${field("car_id","Car","select","",{options:carOpts(l.car_id,"— Select car —")})}
+    ${field("lender","Bank / finance company","text",l.lender,{ph:"HDFC Bank"})}
+    ${field("emi_amount","EMI amount (₹)","number",l.emi_amount)}
+    ${field("emi_day","EMI date (day of month)","number",l.emi_day)}
+    ${field("start_month","First EMI month","month",l.start_month)}
+    ${field("tenure_months","Total EMIs (months)","number",l.tenure_months)}
+    ${field("paid_before","EMIs already paid before adding here","number",l.paid_before)}
+    ${field("loan_amount","Loan amount (₹)","number",l.loan_amount)}
+    ${field("loan_ref","Loan account no.","text",l.loan_ref)}
+    ${field("status","Status","select","",{options:optList(["Active","Closed"],l.status)})}
+    ${field("notes","Notes","text",l.notes,{full:true})}
+  </div><p class="hint">"EMIs already paid" stops older months from showing as overdue. Example: loan started 2 years ago and you've paid 24 EMIs → enter 24.</p>`, footer(`saveLoan('${id||""}')`, id?`del('car_loans','${id}','loan (paid EMI expenses stay)')`:""));
+}
+function saveLoan(id){
+  const row = {car_id:sval("car_id"), lender:sval("lender"), emi_amount:nval("emi_amount")||0, emi_day:Math.min(31,Math.max(1,Math.round(nval("emi_day")||1))), start_month:val("start_month"), tenure_months:Math.round(nval("tenure_months")||0), paid_before:Math.round(nval("paid_before")||0), loan_amount:nval("loan_amount")||0, loan_ref:sval("loan_ref"), status:val("status"), notes:sval("notes")};
+  if(!row.car_id||!row.emi_amount||!/^\d{4}-\d{2}$/.test(row.start_month)||!row.tenure_months){ alert("Fill in car, EMI amount, first EMI month (YYYY-MM) and total EMIs."); return; }
+  if(row.paid_before>row.tenure_months){ alert("EMIs already paid can't be more than total EMIs."); return; }
+  run(()=> id?db.update("car_loans",id,row):db.insert("car_loans",row));
+}
+
+function vCards(){
+  const cards = S.credit_cards.map(c=>({c,cs:cardSummary(c)}));
+  const tx = S.expenses.filter(e=>e.card_id&&inM(e.exp_date)).map(e=>({d:e.exp_date,h:expItem(e)}))
+    .concat(S.card_payments.filter(p=>inM(p.pay_date)).map(p=>({d:p.pay_date,h:`<div class="it" onclick="cardPayForm(null,'${p.id}')"><div class="ico">✅</div><div class="main"><div class="t">Bill payment · ${esc(cardName(card(p.card_id)))}</div><div class="d">${fdate(p.pay_date)} · ${esc(p.mode||"")}${p.note?" · "+esc(p.note):""}</div></div><div class="amt pos">${inr(p.amount)}</div></div>`})))
+    .sort((a,b)=>b.d.localeCompare(a.d));
+  return header_("Credit Cards", `<button class="btn pri" onclick="cardForm()">+ Add card</button>`) + `
+  <div class="grid kpis">
+    <div class="card kpi"><div class="l">Total outstanding</div><div class="v ${sum(cards,x=>x.cs.outstanding)>0?"neg":""}">${inr(sum(cards,x=>x.cs.outstanding))}</div><div class="s">to pay card companies</div></div>
+    <div class="card kpi"><div class="l">Spent on cards</div><div class="v">${inr(sum(cards,x=>x.cs.monthSpend))}</div><div class="s">${mlabel(MONTH)}</div></div>
+    <div class="card kpi"><div class="l">Bills paid</div><div class="v pos">${inr(sum(cards,x=>x.cs.monthPaid))}</div><div class="s">${mlabel(MONTH)}</div></div>
+    <div class="card kpi"><div class="l">Cards</div><div class="v">${S.credit_cards.length}</div></div>
+  </div>
+  <div class="grid carcards" style="margin-top:14px">
+  ${cards.map(({c,cs})=>`<div class="card">
+    <div class="row" style="justify-content:space-between"><b>💳 ${esc(c.name)}</b>${c.status==="Inactive"?`<span class="badge">Inactive</span>`:cs.outstanding<=0?`<span class="badge good">Nothing due</span>`:cs.due&&daysUntil(cs.due)<=7?`<span class="badge bad">Due ${fdate(cs.due)}</span>`:`<span class="badge warn">${cs.due?"Due "+fdate(cs.due):"Unpaid"}</span>`}</div>
+    <div class="hint">${esc(c.bank||"")}${c.last4?" · ending "+esc(c.last4):""}${c.bill_day?" · bill on "+c.bill_day:""}${c.due_day?" · pay by "+c.due_day:""}</div>
+    <div style="font-size:24px;font-weight:700;margin-top:10px" class="${cs.outstanding>0?"neg":""}">${inr(cs.outstanding)} <span class="hint" style="font-size:13px;font-weight:400">outstanding</span></div>
+    ${cs.util!==null?`<div style="height:8px;background:var(--bg);border-radius:9px;margin-top:8px"><div style="height:100%;width:${Math.min(100,Math.max(0,cs.util))}%;background:${cs.util>=80?"var(--bad)":"var(--accent)"};border-radius:9px"></div></div><div class="hint" style="margin-top:4px">${Math.round(Math.max(0,cs.util))}% of ${inr(c.credit_limit)} limit</div>`:""}
+    <div class="stats"><div><div class="l">Spent (${mshort(MONTH)})</div><div class="v">${inr(cs.monthSpend)}</div></div><div><div class="l">Paid (${mshort(MONTH)})</div><div class="v">${inr(cs.monthPaid)}</div></div><div><div class="l">Entries</div><div class="v">${cs.mSpend.length}</div></div></div>
+    <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn sm pri" onclick="cardPayForm('${c.id}')" ${cs.outstanding<=0?"disabled":""}>Pay bill</button><button class="btn sm" onclick="setF('expenses','pay','card:${c.id}');go('expenses')">Transactions</button><button class="btn sm" onclick="cardForm('${c.id}')">Edit</button></div>
+  </div>`).join("")||`<div class="card empty">No credit cards added.<br><br><button class="btn pri" onclick="cardForm()">+ Add card</button></div>`}
+  </div>
+  <div class="card" style="margin-top:14px"><h3>Card activity · ${mlabel(MONTH)}</h3><div class="list">${tx.map(x=>x.h).join("")||`<div class="empty">No card spends or payments this month</div>`}</div></div>
+  <p class="hint">Card spends are counted as expenses on the day you swipe. Paying the card bill only reduces what you owe the card — it isn't counted as an expense again.</p>`;
+}
+function cardForm(id){
+  const c = id ? card(id) : {status:"Active"};
+  openModal(id?"Edit credit card":"Add credit card", `<div class="fg">
+    ${field("name","Card name","text",c.name,{ph:"Business card"})}
+    ${field("bank","Bank","text",c.bank,{ph:"ICICI Bank"})}
+    ${field("last4","Last 4 digits","text",c.last4,{ph:"4417"})}
+    ${field("credit_limit","Credit limit (₹)","number",c.credit_limit)}
+    ${field("bill_day","Bill generated on (day)","number",c.bill_day)}
+    ${field("due_day","Payment due on (day)","number",c.due_day)}
+    ${field("status","Status","select","",{options:optList(["Active","Inactive"],c.status)})}
+    ${field("notes","Notes","text",c.notes)}
+  </div><p class="hint">Only save the last 4 digits — never the full card number.</p>`, footer(`saveCard('${id||""}')`, id?`del('credit_cards','${id}','card (its bill payments too; expenses stay)')`:""));
+}
+function saveCard(id){
+  const last4 = val("last4").replace(/\D/g,"").slice(-4);
+  const day = k => { const n=Math.round(nval(k)||0); return n>=1&&n<=31?n:null; };
+  const row = {name:val("name"), bank:sval("bank"), last4:last4||null, credit_limit:nval("credit_limit")||0, bill_day:day("bill_day"), due_day:day("due_day"), status:val("status"), notes:sval("notes")};
+  if(!row.name){ alert("Enter a card name."); return; }
+  const wasInExpense = document.getElementById("f_category");
+  run(()=> id?db.update("credit_cards",id,row):db.insert("credit_cards",row), "Card saved");
+}
+function cardPayForm(cid, pid){
+  const p = pid ? S.card_payments.find(x=>x.id===pid) : {card_id:cid, pay_date:todayStr(), mode:"Bank Transfer", amount:cardSummary(card(cid)).outstanding};
+  openModal(pid?"Edit card payment":`Pay bill · ${esc(cardName(card(p.card_id)))}`, `<div class="fg">
+    ${field("card_id","Card","select","",{options:S.credit_cards.map(c=>`<option value="${c.id}" ${c.id===p.card_id?"selected":""}>${esc(cardName(c))}</option>`).join("")})}
+    ${field("amount","Amount paid (₹)","number",p.amount)}
+    ${field("pay_date","Paid on","date",p.pay_date)}
+    ${field("mode","Paid from","select","",{options:optList(["Bank Transfer","UPI","Online","Cash"],p.mode)})}
+    ${field("note","Note","text",p.note,{full:true})}
+  </div>`, footer(`saveCardPay('${pid||""}')`, pid?`del('card_payments','${pid}','card payment')`:""));
+}
+function saveCardPay(id){
+  const row = {card_id:val("card_id"), amount:nval("amount")||0, pay_date:val("pay_date")||todayStr(), mode:val("mode"), note:sval("note")};
+  if(!row.amount){ alert("Enter the amount paid."); return; }
+  run(()=> id?db.update("card_payments",id,row):db.insert("card_payments",row), "Payment recorded");
+}
+
+/* ====== MODAL / FORMS ====== */
+function openModal(title, body, footer){
+  document.getElementById("modal").innerHTML = `<header><h2>${title}</h2><button class="x" onclick="closeModal()" aria-label="Close">×</button></header><div class="body">${body}</div>${footer?`<footer>${footer}</footer>`:""}`;
+  document.getElementById("ov").classList.add("show");
+}
+function closeModal(){ document.getElementById("ov").classList.remove("show"); }
+document.getElementById("ov").addEventListener("click",e=>{ if(e.target.id==="ov") closeModal(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
+
+function field(k,label,type="text",val="",opts={}){
+  const v = val??"";
+  let input;
+  if(type==="select") input = `<select id="f_${k}" ${opts.on?`onchange="${opts.on}"`:""}>${opts.options}</select>`;
+  else if(type==="textarea") input = `<textarea id="f_${k}" rows="2">${esc(v)}</textarea>`;
+  else input = `<input id="f_${k}" type="${type}" value="${esc(v)}" ${type==="number"?'step="any" inputmode="decimal"':""} ${opts.on?`oninput="${opts.on}"`:""} ${opts.ph?`placeholder="${esc(opts.ph)}"`:""}>`;
+  return `<div class="f ${opts.full?"full":""}" id="w_${k}" ${opts.hidden?'style="display:none"':""}><label>${label}</label>${input}</div>`;
+}
+const val = k => { const el=document.getElementById("f_"+k); return el?el.value.trim():""; };
+const nval = k => { const v=val(k); return v===""?null:num(v); };
+const sval = k => val(k)||null;
+const optList = (arr, sel) => arr.map(x=>`<option ${x===sel?"selected":""}>${esc(x)}</option>`).join("");
+function footer(saveFn, delFn){ return `${delFn?`<button class="btn danger" onclick="${delFn}">Delete</button>`:""}<span class="sp"></span><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="saveBtn" onclick="${saveFn}">Save</button>`; }
+
+async function run(fn, msg){
+  const b = document.getElementById("saveBtn"); if(b){b.disabled=true;b.textContent="Saving…";}
+  try{ await fn(); closeModal(); await reload(); toast(msg||"Saved"); }
+  catch(e){ alert("Could not save: "+e.message); if(b){b.disabled=false;b.textContent="Save";} }
+}
+async function del(table,id,what){ if(!confirm(`Delete this ${what}? This can't be undone.`)) return; await run(()=>db.remove(table,id),"Deleted"); }
+
+/* Trip */
+function tripForm(id){
+  const t = id ? S.trips.find(x=>x.id===id) : {trip_date:todayStr(), payment_mode:"Cash", driver_id:(F.trips||{}).drv||"", car_id:(F.trips||{}).car||""};
+  if(!id && t.driver_id && !t.car_id) t.car_id = drv(t.driver_id)?.assigned_car_id||"";
+  openModal(id?"Edit trip":"Add trip / collection", `<div class="fg">
+    ${field("trip_date","Date","date",t.trip_date)}
+    ${field("fare","Amount received (₹)","number",t.fare,{ph:"0"})}
+    ${field("driver_id","Driver","select","",{options:drvOpts(t.driver_id,"— Select driver —"),on:"autoCar()"})}
+    ${field("car_id","Car","select","",{options:carOpts(t.car_id,"— Select car —")})}
+    ${field("from_place","From","text",t.from_place)}
+    ${field("to_place","To","text",t.to_place)}
+    ${field("customer","Customer / source","text",t.customer,{ph:"Walk-in, Uber, company name…"})}
+    ${field("km","Distance (km)","number",t.km)}
+    ${field("payment_mode","Payment","select","",{options:optList(PAY_MODES,t.payment_mode)})}
+    ${field("notes","Notes","text",t.notes)}
+  </div><p class="hint">Tip: you can also enter one line per day as a "daily collection" instead of every trip.</p>`, footer(`saveTrip('${id||""}')`, id?`del('trips','${id}','trip')`:""));
+  if(!id) setTimeout(()=>document.getElementById("f_fare")?.focus(),50);
+}
+function row_m(){ return (val("exp_date")||todayStr()).slice(0,7); }
+function autoCar(){ const d=drv(val("driver_id")); if(d?.assigned_car_id && !val("car_id")) document.getElementById("f_car_id").value=d.assigned_car_id; }
+function saveTrip(id){
+  const row = {trip_date:val("trip_date")||todayStr(), fare:nval("fare")||0, driver_id:sval("driver_id"), car_id:sval("car_id"), from_place:sval("from_place"), to_place:sval("to_place"), customer:sval("customer"), km:nval("km")||0, payment_mode:val("payment_mode"), notes:sval("notes")};
+  if(!row.fare){ alert("Enter the amount received."); return; }
+  run(()=> id?db.update("trips",id,row):db.insert("trips",row));
+}
+
+/* Expense */
+function expenseForm(id, preset){
+  const e = id ? S.expenses.find(x=>x.id===id) : {exp_date:todayStr(), category:(F.expenses||{}).cat||"Fuel", payment_mode:"Cash", car_id:((F.expenses||{}).car&&F.expenses.car!=="_g")?F.expenses.car:"", ...(preset||{})};
+  const loanOpts = `<option value="">— Not linked —</option>`+S.car_loans.map(l=>`<option value="${l.id}" ${e.loan_id===l.id?"selected":""}>${esc(loanName(l))} · ${inr(l.emi_amount)}</option>`).join("");
+  const cardOpts = `<option value="">— Select card —</option>`+S.credit_cards.filter(c=>c.status!=="Inactive"||c.id===e.card_id).map(c=>`<option value="${c.id}" ${e.card_id===c.id?"selected":""}>${esc(cardName(c))}</option>`).join("");
+  openModal(id?"Edit expense":"Add expense", `<div class="fg">
+    ${field("exp_date","Date","date",e.exp_date)}
+    ${field("amount","Amount (₹)","number",e.amount,{ph:"0"})}
+    ${field("category","Category","select","",{options:optList(EXP_CATS,e.category),on:"expToggle()"})}
+    ${field("loan_id","Which car loan?","select","",{options:loanOpts,on:"loanPick()"})}
+    ${field("emi_month","EMI for month","month",e.emi_month||MONTH)}
+    ${field("car_id","Car","select","",{options:carOpts(e.car_id,"General / office (no car)")})}
+    ${field("liters","Litres / kg filled","number",e.liters)}
+    ${field("odometer","Odometer reading (km)","number",e.odometer)}
+    ${field("next_due_km","Next service due at (km)","number",e.next_due_km)}
+    ${field("next_due_date","Next service due date","date",e.next_due_date)}
+    ${field("driver_id","Paid by / for driver","select","",{options:drvOpts(e.driver_id,"—")})}
+    ${field("payment_mode","Payment","select","",{options:optList(PAY_MODES,e.payment_mode),on:"expToggle()"})}
+    ${field("card_id","Which credit card?","select","",{options:cardOpts})}
+    ${field("description","Description","text",e.description,{full:true})}
+  </div>`, footer(`saveExpense('${id||""}')`, id?`del('expenses','${id}','expense')`:""));
+  expToggle();
+  if(!id) setTimeout(()=>document.getElementById("f_amount")?.focus(),50);
+}
+function expToggle(){
+  const c = val("category"); const show=(k,on)=>{const w=document.getElementById("w_"+k); if(w) w.style.display=on?"":"none";};
+  const pm = val("payment_mode"); show("card_id", pm==="Credit Card"); show("loan_id", c==="Car EMI"); show("emi_month", c==="Car EMI");
+  if(pm==="Credit Card" && !S.credit_cards.length){ const w=document.getElementById("w_card_id"); if(w) w.querySelector("label").innerHTML='Which credit card? <a style="color:var(--warn);cursor:pointer" onclick="cardForm()">Add a card first</a>'; }
+  show("liters", c==="Fuel"); show("odometer", ["Fuel","Service","Repair","Tyres"].includes(c)); show("next_due_km", c==="Service"); show("next_due_date", c==="Service");
+}
+function loanPick(){ const l=loan(val("loan_id")); if(!l) return; if(!val("amount")) document.getElementById("f_amount").value=l.emi_amount; if(l.car_id) document.getElementById("f_car_id").value=l.car_id; }
+function saveExpense(id){
+  const c = val("category");
+  const row = {exp_date:val("exp_date")||todayStr(), amount:nval("amount")||0, category:c, car_id:sval("car_id"), driver_id:sval("driver_id"), payment_mode:val("payment_mode"), description:sval("description"),
+    liters: c==="Fuel"?nval("liters"):null, odometer:["Fuel","Service","Repair","Tyres"].includes(c)?nval("odometer"):null,
+    next_due_km: c==="Service"?nval("next_due_km"):null, next_due_date: c==="Service"?sval("next_due_date"):null,
+    loan_id: c==="Car EMI"?sval("loan_id"):null, emi_month: c==="Car EMI"&&sval("loan_id")?(val("emi_month")||row_m()):null,
+    card_id: val("payment_mode")==="Credit Card"?sval("card_id"):null};
+  if(!row.amount){ alert("Enter the amount."); return; }
+  if(row.payment_mode==="Credit Card" && S.credit_cards.length && !row.card_id){ alert("Select which credit card was used."); return; }
+  if(row.loan_id && S.expenses.some(x=>x.id!==id && x.loan_id===row.loan_id && x.emi_month===row.emi_month) && !confirm(`An EMI for ${mlabel(row.emi_month)} is already recorded for this loan. Save another one?`)) return;
+  run(async()=>{
+    id?await db.update("expenses",id,row):await db.insert("expenses",row);
+    const cc = car(row.car_id); if(cc && row.odometer && row.odometer>num(cc.odometer)) await db.update("cars",cc.id,{odometer:row.odometer});
+  });
+}
+
+/* Car */
+function carForm(id){
+  const c = id ? car(id) : {fuel_type:"CNG", status:"Active"};
+  openModal(id?"Edit car":"Add car", `<div class="fg">
+    ${field("reg_no","Registration number","text",c.reg_no,{ph:"MH02 AB 1234"})}
+    ${field("model","Model","text",c.model,{ph:"Maruti Dzire"})}
+    ${field("fuel_type","Fuel","select","",{options:optList(["CNG","Petrol","Diesel","Electric","Petrol + CNG"],c.fuel_type)})}
+    ${field("seats","Seats","number",c.seats)}
+    ${field("odometer","Current odometer (km)","number",c.odometer)}
+    ${field("purchase_date","Purchase date","date",c.purchase_date)}
+    ${field("status","Status","select","",{options:optList(["Active","Inactive"],c.status)})}
+    ${field("notes","Notes","text",c.notes)}
+  </div>`, footer(`saveCar('${id||""}')`, id?`del('cars','${id}','car')`:""));
+}
+function saveCar(id){
+  const row = {reg_no:val("reg_no").toUpperCase(), model:sval("model"), fuel_type:val("fuel_type"), seats:nval("seats"), odometer:nval("odometer")||0, purchase_date:sval("purchase_date"), status:val("status"), notes:sval("notes")};
+  if(!row.reg_no){ alert("Enter the registration number."); return; }
+  run(()=> id?db.update("cars",id,row):db.insert("cars",row));
+}
+
+/* Driver */
+function driverForm(id){
+  const d = id ? drv(id) : {pay_type:"fixed", status:"Active", joining_date:todayStr()};
+  openModal(id?"Edit driver":"Add driver", `<div class="fg">
+    ${field("name","Name","text",d.name)}
+    ${field("phone","Phone","tel",d.phone)}
+    ${field("license_no","Licence number","text",d.license_no)}
+    ${field("joining_date","Joining date","date",d.joining_date)}
+    ${field("assigned_car_id","Assigned car","select","",{options:carOpts(d.assigned_car_id,"— None —")})}
+    ${field("pay_type","How is salary paid?","select","",{options:Object.entries(PAY_TYPES).map(([k,l])=>`<option value="${k}" ${d.pay_type===k?"selected":""}>${l}</option>`).join(""),on:"payToggle()"})}
+    ${field("fixed_salary","Monthly salary (₹)","number",d.fixed_salary)}
+    ${field("commission_pct","Commission (% of trip income)","number",d.commission_pct)}
+    ${field("per_trip_rate","Pay per trip (₹)","number",d.per_trip_rate)}
+    ${field("per_day_rate","Pay per day (₹)","number",d.per_day_rate)}
+    ${field("status","Status","select","",{options:optList(["Active","Inactive"],d.status)})}
+    ${field("address","Address","text",d.address)}
+    ${field("notes","Notes","text",d.notes,{full:true})}
+  </div>`, footer(`saveDriver('${id||""}')`, id?`del('drivers','${id}','driver (and their salary/advance records)')`:""));
+  payToggle();
+}
+function payToggle(){ const p=val("pay_type"); [["fixed","fixed_salary"],["commission","commission_pct"],["per_trip","per_trip_rate"],["per_day","per_day_rate"]].forEach(([t,k])=>document.getElementById("w_"+k).style.display=p===t?"":"none"); }
+function saveDriver(id){
+  const row = {name:val("name"), phone:sval("phone"), license_no:sval("license_no"), joining_date:sval("joining_date"), assigned_car_id:sval("assigned_car_id"), pay_type:val("pay_type"),
+    fixed_salary:nval("fixed_salary")||0, commission_pct:nval("commission_pct")||0, per_trip_rate:nval("per_trip_rate")||0, per_day_rate:nval("per_day_rate")||0, status:val("status"), address:sval("address"), notes:sval("notes")};
+  if(!row.name){ alert("Enter the driver's name."); return; }
+  run(()=> id?db.update("drivers",id,row):db.insert("drivers",row));
+}
+
+/* Document */
+function docForm(id){
+  const d = id ? S.documents.find(x=>x.id===id) : {doc_type:"Insurance"};
+  const kind = d.driver_id ? "drv" : "car";
+  openModal(id?"Edit document":"Add document", `<div class="fg">
+    ${field("kind","Document for","select","",{options:`<option value="car" ${kind==="car"?"selected":""}>A car</option><option value="drv" ${kind==="drv"?"selected":""}>A driver</option>`,on:"docToggle()"})}
+    ${field("car_id","Car","select","",{options:carOpts(d.car_id,"— Select car —")})}
+    ${field("driver_id","Driver","select","",{options:drvOpts(d.driver_id,"— Select driver —")})}
+    ${field("doc_type","Document type","select","",{options:""})}
+    ${field("doc_number","Number / policy no.","text",d.doc_number)}
+    ${field("issue_date","Issue / renewal date","date",d.issue_date)}
+    ${field("expiry_date","Expiry date","date",d.expiry_date)}
+    ${field("notes","Notes","text",d.notes,{full:true})}
+  </div>`, footer(`saveDoc('${id||""}')`, id?`del('documents','${id}','document')`:""));
+  document.getElementById("f_doc_type").dataset.sel = d.doc_type; docToggle();
+}
+function docToggle(){
+  const k = val("kind"); document.getElementById("w_car_id").style.display=k==="car"?"":"none"; document.getElementById("w_driver_id").style.display=k==="drv"?"":"none";
+  const sel = document.getElementById("f_doc_type"); const cur = sel.value||sel.dataset.sel;
+  const list = k==="car"?DOC_TYPES_CAR:DOC_TYPES_DRV; sel.innerHTML = optList(list.includes(cur)?list:list, cur);
+}
+function saveDoc(id){
+  const k = val("kind");
+  const row = {doc_type:val("doc_type"), car_id:k==="car"?sval("car_id"):null, driver_id:k==="drv"?sval("driver_id"):null, doc_number:sval("doc_number"), issue_date:sval("issue_date"), expiry_date:sval("expiry_date"), notes:sval("notes")};
+  if(!row.car_id && !row.driver_id){ alert(k==="car"?"Select a car.":"Select a driver."); return; }
+  run(()=> id?db.update("documents",id,row):db.insert("documents",row));
+}
+
+/* Advance */
+function advanceForm(id){
+  const a = id ? S.advances.find(x=>x.id===id) : {adv_date:todayStr()};
+  openModal(id?"Edit advance":"Give advance to driver", `<div class="fg">
+    ${field("driver_id","Driver","select","",{options:drvOpts(a.driver_id,"— Select driver —")})}
+    ${field("amount","Amount (₹)","number",a.amount)}
+    ${field("adv_date","Date","date",a.adv_date)}
+    ${field("note","Note","text",a.note)}
+  </div><p class="hint">Advances are deducted automatically from the driver's next salary.</p>`, footer(`saveAdvance('${id||""}')`, id?`del('advances','${id}','advance')`:""));
+}
+function saveAdvance(id){
+  const row = {driver_id:sval("driver_id"), amount:nval("amount")||0, adv_date:val("adv_date")||todayStr(), note:sval("note")};
+  if(!row.driver_id||!row.amount){ alert("Select a driver and enter the amount."); return; }
+  run(()=> id?db.update("advances",id,row):db.insert("advances",row));
+}
+
+/* Salary */
+function salaryForm(did){
+  const s = salaryCalc(drv(did));
+  openModal(`Salary · ${esc(s.d.name)} · ${mlabel(MONTH)}`, `
+    <div class="hint" style="margin-bottom:12px">${PAY_TYPES[s.d.pay_type]} · ${s.tripsCount} trips · ${inr(s.earnings)} trip income this month</div>
+    <div class="fg">
+      ${s.d.pay_type==="per_day"?field("days_worked",`Days worked (trip days: ${s.autoDays})`,"number",s.days,{on:"salCalc()"}):""}
+      ${field("bonus","Bonus / incentive (₹)","number",s.bonus||"",{on:"salCalc()"})}
+      ${field("advance_deduction",`Advance deduction (outstanding ${inr(s.outstanding)})`,"number",s.advDed,{on:"salCalc()"})}
+      ${field("other_deduction","Other deduction (₹)","number",s.otherDed||"",{on:"salCalc()",ph:"Damage, fine, leave…"})}
+      ${field("notes","Notes","text",s.saved?.notes,{full:true})}
+    </div>
+    <div class="calcbox" id="salBox"></div>`,
+    `${s.saved?`<button class="btn danger" onclick="del('salaries','${s.saved.id}','saved salary')">Reset</button>`:""}<span class="sp"></span><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="saveBtn" onclick="saveSalary('${did}')">Save</button>`);
+  salCalc();
+}
+function salFromForm(did){
+  const d = drv(did), base = salaryCalc(d);
+  const days = d.pay_type==="per_day" ? Math.max(0,Math.round(num(val("days_worked")))) : base.autoDays;
+  const dayPay = d.pay_type==="per_day" ? days*num(d.per_day_rate) : 0;
+  const bonus = num(val("bonus")), adv = Math.max(0,num(val("advance_deduction"))), oth = Math.max(0,num(val("other_deduction")));
+  const gross = r2(base.fixed+base.commission+base.tripPay+dayPay+bonus);
+  return {base,days,dayPay,bonus,adv,oth,gross,net:r2(gross-adv-oth)};
+}
+function salCalc(){
+  const did = document.getElementById("saveBtn").getAttribute("onclick").match(/'(.+)'/)[1];
+  const x = salFromForm(did); const b = x.base;
+  const warn = x.adv > b.outstanding+0.5 ? `<div class="neg" style="margin-top:6px">Advance deduction is more than outstanding (${inr(b.outstanding)}).</div>` : "";
+  document.getElementById("salBox").innerHTML = `<div class="sal"><div class="brk" style="margin:0 0 8px">
+    <span>Base pay</span><span>${inr(b.fixed+b.commission+b.tripPay+x.dayPay)}</span><span>Bonus</span><span>${inr(x.bonus)}</span>
+    <span>Gross</span><span>${inr(x.gross)}</span><span>Deductions</span><span class="neg">−${inr(x.adv+x.oth)}</span></div>
+    <div class="net"><span>Net pay</span><span>${inr(x.net)}</span></div>${warn}</div>`;
+}
+function saveSalary(did){
+  const x = salFromForm(did), b = x.base, d = drv(did);
+  const row = {month:MONTH, driver_id:did, pay_type:d.pay_type, fixed_amount:b.fixed, commission_amount:b.commission, trip_pay:b.tripPay, day_pay:x.dayPay,
+    trips_count:b.tripsCount, days_worked:x.days, earnings_base:b.earnings, bonus:x.bonus, advance_deduction:x.adv, other_deduction:x.oth, gross:x.gross, net:x.net, notes:sval("notes")};
+  run(()=>db.upsert("salaries",row,"month,driver_id"),"Salary saved");
+}
+function payForm(did){
+  const s = salaryCalc(drv(did));
+  openModal(`Pay ${esc(s.d.name)}`, `<div class="hint" style="margin-bottom:12px">${mlabel(MONTH)} · Net ${inr(s.net)}${s.paid?` · already paid ${inr(s.paid)}`:""}</div><div class="fg">
+    ${field("paid_amount","Total amount paid (₹)","number",s.paid||s.net)}
+    ${field("paid_date","Paid on","date",s.saved?.paid_date||todayStr())}
+    ${field("payment_mode","Mode","select","",{options:optList(PAY_MODES,s.saved?.payment_mode||"Cash")})}
+  </div>${s.saved?"":`<p class="hint">This will also save the salary as calculated (${inr(s.net)}).</p>`}`, footer(`savePay('${did}')`));
+}
+function savePay(did){
+  const s = salaryCalc(drv(did));
+  const pay = {paid_amount:nval("paid_amount")||0, paid_date:sval("paid_date"), payment_mode:val("payment_mode")};
+  const row = s.saved ? pay : {month:MONTH, driver_id:did, pay_type:s.d.pay_type, fixed_amount:s.fixed, commission_amount:s.commission, trip_pay:s.tripPay, day_pay:s.dayPay, trips_count:s.tripsCount, days_worked:s.days, earnings_base:s.earnings, bonus:s.bonus, advance_deduction:s.advDed, other_deduction:s.otherDed, gross:s.gross, net:s.net, ...pay};
+  run(()=> s.saved ? db.update("salaries",s.saved.id,pay) : db.upsert("salaries",row,"month,driver_id"), "Payment recorded");
+}
+function payslip(did){
+  const s = salaryCalc(drv(did)), st = S.settings;
+  const line = (l,v)=>`<tr><td>${l}</td><td style="text-align:right">${v}</td></tr>`;
+  document.getElementById("printArea").innerHTML = `<div class="slip"><h1>${esc(st.company_name||"")}</h1><div>${esc(st.address||"")} ${st.phone?"· "+esc(st.phone):""}</div>
+  <h2 style="margin:22px 0 6px">Salary slip — ${mlabel(MONTH)}</h2>
+  <p><b>${esc(s.d.name)}</b> · ${esc(s.d.phone||"")} · Car ${esc(carName(s.d.assigned_car_id))} · ${PAY_TYPES[s.d.pay_type]}</p>
+  <table style="width:100%;border-collapse:collapse">${line("Trips this month",s.tripsCount)}${line("Days worked",s.days)}${line("Trip income",inr(s.earnings))}
+  ${s.fixed?line("Fixed salary",inr(s.fixed)):""}${s.commission?line(`Commission (${num(s.d.commission_pct)}%)`,inr(s.commission)):""}${s.tripPay?line("Per-trip pay",inr(s.tripPay)):""}${s.dayPay?line("Per-day pay",inr(s.dayPay)):""}
+  ${s.bonus?line("Bonus",inr(s.bonus)):""}${line("<b>Gross</b>","<b>"+inr(s.gross)+"</b>")}${line("Advance deduction",inr(s.advDed))}${line("Other deduction",inr(s.otherDed))}
+  ${line("<b>Net pay</b>","<b>"+inr(s.net)+"</b>")}${line("Paid",inr(s.paid)+(s.saved?.paid_date?" on "+fdate(s.saved.paid_date):"")+(s.saved?.payment_mode?" ("+esc(s.saved.payment_mode)+")":""))}</table>
+  ${s.saved?.notes?`<p>Note: ${esc(s.saved.notes)}</p>`:""}
+  <div style="display:flex;justify-content:space-between;margin-top:60px"><span>Driver's signature</span><span>Authorised signatory</span></div></div>`;
+  window.print();
+}
+
+async function wipeAll(){
+  const t = prompt('This deletes ALL cars, drivers, trips, expenses, salaries, advances, documents, loans and credit cards for everyone.\nType DELETE to confirm.');
+  if(t!=="DELETE") return;
+  try{ for(const tb of ["salaries","advances","documents","trips","expenses","card_payments","car_loans","credit_cards","drivers","cars"]) await api(tb+"?id=not.is.null",{method:"DELETE"}); await reload(); toast("All data deleted"); }
+  catch(e){ alert("Could not delete: "+e.message); }
+}
+/* Settings / export */
+async function saveSettings(){
+  try{ await db.update("settings",1,{company_name:val2("s_name"), phone:val2("s_phone")||null, address:val2("s_addr")||null, doc_alert_days:num(val2("s_days"))||30, service_alert_km:num(val2("s_km"))||500, updated_at:new Date().toISOString()}); await reload(); toast("Settings saved"); }
+  catch(e){ alert("Could not save: "+e.message); }
+}
+function val2(id){ return (document.getElementById(id)?.value||"").trim(); }
+function download(name, text, type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+function backup(){ download(`taxi-backup-${todayStr()}.json`, JSON.stringify(S,null,1), "application/json"); }
+function exportCSV(){
+  const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
+  const rows = [["Type","Date","Category / Customer","Car","Driver","Details","Km / Litres","Amount"]];
+  S.trips.filter(t=>inM(t.trip_date)).forEach(t=>rows.push(["Income",t.trip_date,t.customer,carName(t.car_id),drvName(t.driver_id),[t.from_place,t.to_place].filter(Boolean).join(" → "),t.km,t.fare]));
+  S.expenses.filter(e=>inM(e.exp_date)).forEach(e=>rows.push(["Expense",e.exp_date,e.category,e.car_id?carName(e.car_id):"General",e.driver_id?drvName(e.driver_id):"",e.description,e.liters||"",-num(e.amount)]));
+  monthSummary().sal.forEach(s=>rows.push(["Salary",MONTH,PAY_TYPES[s.d.pay_type],carName(s.d.assigned_car_id),s.d.name,s.saved?"saved":"estimate","",-s.gross]));
+  download(`taxi-${MONTH}.csv`, "﻿"+rows.map(r=>r.map(q).join(",")).join("\n"), "text/csv");
+}
+
+/* ====== BOOT ====== */
+reload();
+setInterval(()=>{ if(document.visibilityState==="visible" && !document.getElementById("ov").classList.contains("show")) reload(); }, 60000);
+</script>
+</body>
+</html>
